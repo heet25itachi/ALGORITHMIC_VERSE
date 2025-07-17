@@ -1,12 +1,12 @@
 # Proprietary License for Abramov's Algorithm Project
 
-**Copyright © 2025 [Your Name or Organization]. All Rights Reserved.**
+**Copyright © 2025 [Heet Trivedi a.k.a Arjun]. All Rights Reserved.**
 
 ---
 
 ## 1. Preamble
 
-The **Abramov's Algorithm Project** (hereinafter referred to as the **"Software"**) encompasses all source code, pseudocode, documentation, README files, and associated materials. The Software implements algorithms for computing rational solutions to linear difference and q-difference equations with polynomial coefficients, inspired by the works of S. A. Abramov and related academic references. This License establishes strict terms governing access, use, and distribution of the Software, reserving all rights to [Your Name or Organization] (the **"Copyright Holder"**).
+The **Abramov's Algorithm Project** (hereinafter referred to as the **"Software"**) encompasses all source code, pseudocode, documentation, README files, and associated materials. The Software implements algorithms for computing rational solutions to linear difference and q-difference equations with polynomial coefficients, inspired by the works of S. A. Abramov and related academic references. This License establishes strict terms governing access, use, and distribution of the Software, reserving all rights to [Heet Trivedi a.k.a Arjun] (the **"Copyright Holder"**).
 
 ---
 
@@ -61,11 +61,6 @@ The Software is provided **"as is"** without warranties of any kind, express or 
 
 ---
 
-## 7. Governing Law
-
-This License is governed by and construed in accordance with the laws of [Your Jurisdiction, e.g., "the State of California, United States"]. Any disputes arising under this License shall be resolved in the courts of [Your Jurisdiction].
-
----
 
 ## 8. Enforcement and Remedies
 
@@ -81,10 +76,10 @@ The Copyright Holder may revoke any permission to access or use the Software at 
 
 ## 10. Contact Information
 
-| **Entity**                     | **Details**                          |
+| **Entity**                    | **Details**                          |
 |-------------------------------|--------------------------------------|
-| **Copyright Holder**       | [Your Name or Organization]          |
-| **Contact for Permissions**   | [Your Email or Mailing Address]      |
+| **Copyright Holder**          | [Heet Trivedi a.k.a Arjun]           |
+| **Contact for Permissions**   | [heettrivedi02@gmail.com]            |
 
 For inquiries regarding licensing or permissions, please reach out via the above contact details.
 
@@ -96,4 +91,4 @@ This License is effective as of **July 17, 2025**, and applies to all versions o
 
 ---
 
-**Copyright © 2025 [Your Name or Organization]. All Rights Reserved.**
+**Copyright © 2025 [**Heet Trivedi a.k.a Arjun**]. All Rights Reserved.**
