@@ -103,18 +103,6 @@ Licensed under [MIT License](./LICENSE) — Open, forkable, and collaborative.
 
 ---
 
-## 💡 Contribute
-
-🙌 Contributions are welcome!  
-You can:
-
-- Add new algorithms  
-- Fix bugs or optimize  
-- Add test cases  
-- Translate to another language  
-- Add research/LaTeX insights  
-
----
 
 ## 📚 Citation
 
