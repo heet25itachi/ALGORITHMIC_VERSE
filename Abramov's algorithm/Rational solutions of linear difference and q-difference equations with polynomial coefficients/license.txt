@@ -1,37 +1,99 @@
-Proprietary License for Abramov's Algorithm Project
-Copyright © 2025 [Heet Trivedi a.k.a Arjun]. All Rights Reserved.
-License Terms
-The "Abramov's Algorithm" project, including all source code, pseudocode, documentation, README files, and any other materials contained within this folder (collectively, the "Software"), is the proprietary property of [Your Name or Organization] ("the Copyright Holder"). This Software implements algorithms for finding rational solutions to linear difference and q-difference equations with polynomial coefficients, as inspired by the work of S. A. Abramov and related references.
-Restrictions
+# Proprietary License for Abramov's Algorithm Project
 
-No Unauthorized Use: The Software is provided for private, restricted access only. No individual, entity, or organization may use, execute, or access the Software without express written permission from the Copyright Holder.
+**Copyright © 2025 [Your Name or Organization]. All Rights Reserved.**
 
-No Copying or Distribution: You may not copy, reproduce, distribute, publish, display, perform, modify, create derivative works from, transmit, or in any way exploit any part of the Software, including but not limited to source code (in languages such as Python, C, C++, Java, Go, Rust, Kotlin, MATLAB, Scala, Perl, Ruby, Julia, Haskell), pseudocode, documentation, or any other content, without prior written consent from the Copyright Holder.
+---
 
-No Downloading: Downloading, cloning, or otherwise obtaining a local copy of the Software from its storage location (e.g., repository, server, or other medium) is strictly prohibited unless explicitly authorized in writing by the Copyright Holder.
+## 1. Preamble
 
-No Reverse Engineering: You may not reverse engineer, decompile, disassemble, or attempt to derive the source code or underlying algorithms of the Software.
+The **Abramov's Algorithm Project** (hereinafter referred to as the **"Software"**) encompasses all source code, pseudocode, documentation, README files, and associated materials. The Software implements algorithms for computing rational solutions to linear difference and q-difference equations with polynomial coefficients, inspired by the works of S. A. Abramov and related academic references. This License establishes strict terms governing access, use, and distribution of the Software, reserving all rights to [Your Name or Organization] (the **"Copyright Holder"**).
 
-No Redistribution: You may not share, sublicense, or redistribute the Software, in whole or in part, in any form, including modified versions, without written permission from the Copyright Holder.
+---
 
+## 2. Definitions
 
-Permissions
+- **Software**: All files within the "Abramov's Algorithm" folder, including source code (Python, C, C++, Java, Go, Rust, Kotlin, MATLAB, Scala, Perl, Ruby, Julia, Haskell), pseudocode, README, and reference documentation.
+- **Authorized User**: An individual or entity explicitly granted written permission by the Copyright Holder to access or use the Software.
+- **Unauthorized Use**: Any access, use, copying, distribution, or modification of the Software without prior written consent from the Copyright Holder.
 
-Authorized Access: Access to the Software is granted only to individuals or entities explicitly authorized by the Copyright Holder under a separate written agreement. Such agreements may specify limited use cases, such as private evaluation or licensed use, subject to additional terms.
+---
 
-Contact for Permissions: To request permission to use, copy, or access the Software, contact the Copyright Holder at [Your Contact Information, e.g., email or address]. Any use without such permission is a violation of this license.
+## 3. License Restrictions
 
+The Software is subject to the following stringent restrictions:
 
-Intellectual Property
-All intellectual property rights, including copyrights, in the Software are owned by the Copyright Holder. The Software may include implementations inspired by academic works (e.g., Abramov’s algorithms), but all code, documentation, and other materials are original works protected by this license. Any use of the Software must acknowledge the Copyright Holder’s ownership.
-Disclaimer of Warranty
-The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The Copyright Holder is not liable for any damages, including direct, indirect, incidental, or consequential damages, arising from the use or inability to use the Software.
-Governing Law
-This License shall be governed by and construed in accordance with the laws of [Your Jurisdiction, e.g., "the State of California, United States"], without regard to its conflict of law principles.
-Enforcement
-Any unauthorized use, copying, downloading, or distribution of the Software constitutes a breach of this License and may result in legal action. The Copyright Holder reserves the right to enforce this License to the fullest extent permitted by law.
-Termination
-Any permission granted to access or use the Software may be terminated by the Copyright Holder at any time, with or without cause, upon written notice. Upon termination, all copies of the Software must be destroyed, and all use must cease immediately.
-Contact Information
-For inquiries regarding licensing or permissions, contact:[Heet Trievdi a.k.a Arjun][heettrivedi02@gmail.com]
-Last Updated: July 17, 2025
+- **Prohibition on Unauthorized Use**  
+  No individual, entity, or organization may access, execute, or utilize the Software without *express written permission* from the Copyright Holder. Any unauthorized use is strictly prohibited.
+
+- **No Copying or Distribution**  
+  Copying, reproducing, distributing, publishing, displaying, performing, modifying, or creating derivative works from the Software, including all source code and documentation, is forbidden without prior written consent.
+
+- **No Downloading**  
+  Downloading, cloning, or obtaining any copy of the Software from its storage location (e.g., repository, server) is prohibited unless explicitly authorized in writing.
+
+- **No Reverse Engineering**  
+  Reverse engineering, decompiling, disassembling, or attempting to derive the source code or algorithms of the Software is strictly forbidden.
+
+- **No Redistribution**  
+  Redistribution, sublicensing, or sharing of the Software, in whole or in part, in any form, is prohibited without written permission from the Copyright Holder.
+
+---
+
+## 4. Grant of Permissions
+
+- **Limited Access**  
+  Access to the Software is granted *only* to Authorized Users under a separate written agreement specifying permitted use cases, such as private evaluation or licensed application.
+
+- **Permission Requests**  
+  To request access, use, or copying rights, contact the Copyright Holder at the details provided in Section 10. Unauthorized access or use constitutes a violation of this License.
+
+---
+
+## 5. Intellectual Property Rights
+
+The Copyright Holder exclusively owns all intellectual property rights, including copyrights, in the Software. While inspired by academic works (e.g., Abramov’s algorithms), all implementations, documentation, and materials are original works protected by this License. Any use of the Software must acknowledge the Copyright Holder’s ownership.
+
+---
+
+## 6. Disclaimer of Warranties
+
+The Software is provided **"as is"** without warranties of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, or non-infringement. The Copyright Holder shall not be liable for any damages, including direct, indirect, incidental, special, or consequential damages, arising from the use or inability to use the Software.
+
+---
+
+## 7. Governing Law
+
+This License is governed by and construed in accordance with the laws of [Your Jurisdiction, e.g., "the State of California, United States"]. Any disputes arising under this License shall be resolved in the courts of [Your Jurisdiction].
+
+---
+
+## 8. Enforcement and Remedies
+
+Unauthorized use, copying, downloading, or distribution of the Software constitutes a *material breach* of this License. The Copyright Holder reserves the right to pursue all legal remedies, including injunctive relief, damages, and attorney’s fees, to enforce this License.
+
+---
+
+## 9. Termination
+
+The Copyright Holder may revoke any permission to access or use the Software at any time, with or without cause, upon written notice. Upon termination, Authorized Users must immediately cease all use and destroy all copies of the Software in their possession or control.
+
+---
+
+## 10. Contact Information
+
+| **Entity**                     | **Details**                          |
+|-------------------------------|--------------------------------------|
+| **Copyright Holder**       | [Your Name or Organization]          |
+| **Contact for Permissions**   | [Your Email or Mailing Address]      |
+
+For inquiries regarding licensing or permissions, please reach out via the above contact details.
+
+---
+
+## 11. Effective Date
+
+This License is effective as of **July 17, 2025**, and applies to all versions of the Software unless superseded by a subsequent license agreement.
+
+---
+
+**Copyright © 2025 [Your Name or Organization]. All Rights Reserved.**
