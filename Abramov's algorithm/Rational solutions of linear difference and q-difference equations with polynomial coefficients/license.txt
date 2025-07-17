@@ -1,0 +1,37 @@
+Proprietary License for Abramov's Algorithm Project
+Copyright © 2025 [Heet Trivedi a.k.a Arjun]. All Rights Reserved.
+License Terms
+The "Abramov's Algorithm" project, including all source code, pseudocode, documentation, README files, and any other materials contained within this folder (collectively, the "Software"), is the proprietary property of [Your Name or Organization] ("the Copyright Holder"). This Software implements algorithms for finding rational solutions to linear difference and q-difference equations with polynomial coefficients, as inspired by the work of S. A. Abramov and related references.
+Restrictions
+
+No Unauthorized Use: The Software is provided for private, restricted access only. No individual, entity, or organization may use, execute, or access the Software without express written permission from the Copyright Holder.
+
+No Copying or Distribution: You may not copy, reproduce, distribute, publish, display, perform, modify, create derivative works from, transmit, or in any way exploit any part of the Software, including but not limited to source code (in languages such as Python, C, C++, Java, Go, Rust, Kotlin, MATLAB, Scala, Perl, Ruby, Julia, Haskell), pseudocode, documentation, or any other content, without prior written consent from the Copyright Holder.
+
+No Downloading: Downloading, cloning, or otherwise obtaining a local copy of the Software from its storage location (e.g., repository, server, or other medium) is strictly prohibited unless explicitly authorized in writing by the Copyright Holder.
+
+No Reverse Engineering: You may not reverse engineer, decompile, disassemble, or attempt to derive the source code or underlying algorithms of the Software.
+
+No Redistribution: You may not share, sublicense, or redistribute the Software, in whole or in part, in any form, including modified versions, without written permission from the Copyright Holder.
+
+
+Permissions
+
+Authorized Access: Access to the Software is granted only to individuals or entities explicitly authorized by the Copyright Holder under a separate written agreement. Such agreements may specify limited use cases, such as private evaluation or licensed use, subject to additional terms.
+
+Contact for Permissions: To request permission to use, copy, or access the Software, contact the Copyright Holder at [Your Contact Information, e.g., email or address]. Any use without such permission is a violation of this license.
+
+
+Intellectual Property
+All intellectual property rights, including copyrights, in the Software are owned by the Copyright Holder. The Software may include implementations inspired by academic works (e.g., Abramov’s algorithms), but all code, documentation, and other materials are original works protected by this license. Any use of the Software must acknowledge the Copyright Holder’s ownership.
+Disclaimer of Warranty
+The Software is provided "as is," without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The Copyright Holder is not liable for any damages, including direct, indirect, incidental, or consequential damages, arising from the use or inability to use the Software.
+Governing Law
+This License shall be governed by and construed in accordance with the laws of [Your Jurisdiction, e.g., "the State of California, United States"], without regard to its conflict of law principles.
+Enforcement
+Any unauthorized use, copying, downloading, or distribution of the Software constitutes a breach of this License and may result in legal action. The Copyright Holder reserves the right to enforce this License to the fullest extent permitted by law.
+Termination
+Any permission granted to access or use the Software may be terminated by the Copyright Holder at any time, with or without cause, upon written notice. Upon termination, all copies of the Software must be destroyed, and all use must cease immediately.
+Contact Information
+For inquiries regarding licensing or permissions, contact:[Heet Trievdi a.k.a Arjun][heettrivedi02@gmail.com]
+Last Updated: July 17, 2025
