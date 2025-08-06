@@ -1,0 +1,91 @@
+// Function to map standard month (1-12) to algorithm index
+FUNCTION get_month_index(month)
+    indices = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // Jan=11, Feb=12, Mar=1, ..., Dec=10
+    IF month >= 1 AND month <= 12 THEN
+        RETURN indices[month - 1]
+    ELSE
+        RETURN -1
+    END IF
+END FUNCTION
+
+// Function to get month name for output
+FUNCTION get_month_name(month)
+    names = ["January", "February", "March", "April", "May", "June",
+             "July", "August", "September", "October", "November", "December"]
+    IF month >= 1 AND month <= 12 THEN
+        RETURN names[month - 1]
+    ELSE
+        RETURN "Invalid"
+    END IF
+END FUNCTION
+
+// Function to calculate number of days in a month
+FUNCTION days_in_month(month, year)
+    // Input validation
+    IF month < 1 OR month > 12 OR year < 1753 THEN
+        RETURN -1
+    END IF
+
+    m = get_month_index(month)
+    y = year
+
+    // Base formula for all months
+    d = 30 + FLOOR(0.6 * m + 0.4) - FLOOR(0.6 * m - 0.2) - 2 * FLOOR(m / 12)
+
+    // Additional terms for February (m = 12)
+    IF m = 12 THEN
+        d = d + FLOOR((y - 1) / 4 - FLOOR((y - 1) / 4) + 0.25)
+        // Century year adjustment for February
+        IF year MOD 100 = 0 THEN
+            century_term = FLOOR(0.3 + (FLOOR(y / 100) - 3) / 4.5 - FLOOR((FLOOR(y / 100) - 3) / 4.5))
+            d = d + FLOOR((century_term + 99 + 100 * (y / 100 - FLOOR(y / 100))) / 100) - 1
+        END IF
+    END IF
+
+    RETURN d
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    tests = [(2, 2000), (3, 2023), (4, 2024), (2, 1900)]
+    FOR EACH (month, year) IN tests
+        days = days_in_month(month, year)
+        IF days != -1 THEN
+            PRINT "Days in ", get_month_name(month), " ", year, ": ", days
+        ELSE
+            PRINT "Invalid input"
+        END IF
+    END FOR
+END MAIN
+
+
+
+
+
+Notes
+
+Purpose: Computes the number of days in a month using the Wikipedia formula, handling leap years and century years for February.
+Month Mapping: Maps standard month numbers (1=January, ..., 12=December) to algorithm indices (11, 12, 1, ..., 10).
+Formula Structure:
+
+Base terms for all months: 30 + FLOOR(0.6m + 0.4) - FLOOR(0.6m - 0.2) - 2*FLOOR(m/12).
+Leap-year term for February: FLOOR((y-1)/4 - FLOOR((y-1)/4) + 0.25).
+Century-year term for February: Handles 100-year rule in Gregorian calendar.
+
+
+Test Cases:
+
+February 2000 (m=12, y=2000): 29 days (leap year, century year).
+March 2023 (m=1, y=2023): 31 days.
+April 2024 (m=2, y=2024): 30 days.
+February 1900 (m=12, y=1900): 28 days (century year, not a leap year).
+
+
+Output Format: "Days in [Month] [Year]: [Days]" or "Invalid input".
+Constraints:
+
+Assumes Gregorian calendar post-1752 (year ≥ 1753).
+Invalid inputs (month < 1, month > 12, year < 1753) return -1.
+
+
+Clarity: Uses standard pseudocode conventions (e.g., FLOOR, IF-THEN-ELSE, array indexing) for easy translation to any programming language.
