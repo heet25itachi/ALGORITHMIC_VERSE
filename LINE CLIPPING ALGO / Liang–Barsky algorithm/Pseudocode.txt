@@ -71,3 +71,33 @@ MAIN
         END IF
     END FOR
 END MAIN
+
+
+
+## Notes ##
+
+Purpose: Clips a line segment from $ (x_0, y_0) $ to $ (x_1, y_1) $ against a rectangular window $ (x_{min}, y_{min}, x_{max}, y_{max}) $ using parametric equations $ x = x_0 + t \Delta x $, $ y = y_0 + t \Delta y $, computing intersection parameters via inequalities $ t p_i \leq q_i $.
+Algorithm Details:
+
+Parametric Equation: $ x = x_0 + t (x_1 - x_0) $, $ y = y_0 + t (y_1 - y_0) $, $ 0 \leq t \leq 1 $.
+Inequalities: Defined by $ p_1 = -\Delta x $, $ q_1 = x_0 - x_{min} $ (left); $ p_2 = \Delta x $, $ q_2 = x_{max} - x_0 $ (right); $ p_3 = -\Delta y $, $ q_3 = y_0 - y_{min} $ (bottom); $ p_4 = \Delta y $, $ q_4 = y_{max} - y_0 $ (top).
+Early Rejection: If $ p_i = 0 $ and $ q_i < 0 $, the line is parallel to an edge and outside.
+Intersection Parameters: Compute $ t = q_i / p_i $ for $ p_i \neq 0 $. If $ p_i < 0 $, update $ u_1 = \max(0, t) $ (entry); if $ p_i > 0 $, update $ u_2 = \min(1, t) $ (exit).
+Clipping: Accept if $ u_1 \leq u_2 $; compute clipped points at $ t = u_1 $ and $ t = u_2 $.
+
+
+Test Cases (same as prior artifact):
+
+(2, 2, 8, 8): Accepted, no clipping.
+(12, 12, 15, 15): Rejected.
+(5, 12, 15, 5): Clipped to (5, 10, 10, 5).
+(-5, 5, 15, 5): Clipped to (0, 5, 10, 5).
+
+
+Clip Window: Fixed as $ (0, 0, 10, 10) $ for consistency with prior artifacts (Cohen–Sutherland, Cyrus–Beck).
+Output Format: "Line from (x0, y0) to (x1, y1): [Accepted/Rejected][, clipped to (x0_new, y0_new) to (x1_new, y1_new)]".
+Constraints:
+
+Assumes valid window ($ x_{min} < x_{max} $, $ y_{min} < y_{max} $).
+Handles parallel cases ($ p_i = 0 $, $ q_i < 0 $) for early rejection.
+Uses floating-point coordinates for precision.
