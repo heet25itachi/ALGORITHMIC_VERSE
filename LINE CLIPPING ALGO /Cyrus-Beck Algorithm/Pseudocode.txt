@@ -1,0 +1,78 @@
+// Constants: Convex polygon vertices (clockwise)
+vertices = [(0, 0), (10, 0), (10, 10), (0, 10)]
+n_vertices = 4
+
+// Function to compute outward normal for edge i (from vertex i to i+1)
+FUNCTION compute_normal(i)
+    v1 = vertices[i]
+    v2 = vertices[(i + 1) MOD n_vertices]
+    normal_x = -(v2.y - v1.y) // Perpendicular vector, outward
+    normal_y = v2.x - v1.x
+    RETURN (normal_x, normal_y)
+END FUNCTION
+
+// Function to compute dot product of two vectors
+FUNCTION dot_product(a, b)
+    RETURN a.x * b.x + a.y * b.y
+END FUNCTION
+
+// Function to clip a line from (x0, y0) to (x1, y1) against convex polygon
+FUNCTION cyrus_beck_clip(x0, y0, x1, y1)
+    // Compute direction vector D
+    D = (x1 - x0, y1 - y0)
+    IF D.x = 0 AND D.y = 0 THEN
+        RETURN FALSE, x0, y0, x1, y1 // Degenerate line
+    END IF
+
+    // Initialize t values for entry (tE) and exit (tL)
+    tE = 0.0
+    tL = 1.0
+
+    // Process each polygon edge
+    FOR i FROM 0 TO n_vertices - 1
+        normal = compute_normal(i)
+        PE = vertices[i] // Point on edge i
+        diff = (x0 - PE.x, y0 - PE.y)
+        num = -dot_product(normal, diff)
+        den = dot_product(normal, D)
+        IF den = 0 THEN
+            CONTINUE // Line parallel to edge
+        END IF
+        t = num / den
+        IF den > 0 THEN // Exit point
+            IF t < tL THEN
+                tL = t
+            END IF
+        ELSE // Entry point
+            IF t > tE THEN
+                tE = t
+            END IF
+        END IF
+    END FOR
+
+    // Check if valid segment exists
+    IF tE > tL OR tE < 0 OR tE > 1 OR tL < 0 OR tL > 1 THEN
+        RETURN FALSE, x0, y0, x1, y1 // Reject
+    END IF
+
+    // Compute clipped endpoints
+    x0_new = x0 + tE * D.x
+    y0_new = y0 + tE * D.y
+    x1_new = x0 + tL * D.x
+    y1_new = y0 + tL * D.y
+    RETURN TRUE, x0_new, y0_new, x1_new, y1_new
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+    FOR EACH (x0, y0, x1, y1) IN tests
+        accept, x0_new, y0_new, x1_new, y1_new = cyrus_beck_clip(x0, y0, x1, y1)
+        PRINT "Line from (", x0, ", ", y0, ") to (", x1, ", ", y1, "): "
+        IF accept THEN
+            PRINT "Accepted, clipped to (", x0_new, ", ", y0_new, ") to (", x1_new, ", ", y1_new, ")"
+        ELSE
+            PRINT "Rejected"
+        END IF
+    END FOR
+END MAIN
