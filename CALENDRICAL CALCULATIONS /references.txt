@@ -1,0 +1,4 @@
+Wikipedia Article: Calendrical Calculation
+
+URL: [https://en.wikipedia.org/wiki/Calendrical_calculation]
+Description: The primary source for the algorithm, providing the formula to calculate the number of days in a month (m) of a year (y) using specific month indices (January=11, February=12, March=1, ..., December=10). The formula accounts for leap years, century years, and the Gregorian calendar reform in England (3/14 September 1752). The pseudocode and implementations directly translate this formula, including the floor function operations and conditional logic for February and century years.
