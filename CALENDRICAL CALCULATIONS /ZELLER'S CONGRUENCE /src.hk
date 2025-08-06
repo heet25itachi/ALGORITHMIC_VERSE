@@ -1,0 +1,36 @@
+module Main where
+
+weekdays :: [String]
+weekdays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+
+monthNames :: [String]
+monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+monthDays :: [Int]
+monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+isLeapYear :: Int -> Bool
+isLeapYear year = year `mod` 4 == 0 && (year `mod` 100 /= 0 || year `mod` 400 == 0)
+
+isValidDate :: Int -> Int -> Int -> Bool
+isValidDate day month year
+  | month < 1 || month > 12 || day < 1 || year < 1583 = False
+  | otherwise = let maxDays = if month == 2 && isLeapYear year then 29 else monthDays !! (month - 1)
+                  in day <= maxDays
+
+getZeller :: Int -> Int -> Int -> Int
+getZeller day month year = let
+    (m, y) = if month == 1 || month == 2 then (month + 12, year - 1) else (month, year)
+    K = y `mod` 100
+    J = y `div` 100
+    in (day + ((13 * (m + 1)) `div` 5) + K + (K `div` 4) + (J `div` 4) + 5 * J) `mod` 7
+
+getWeekday :: Int -> Int -> Int -> String
+getWeekday day month year
+  | not (isValidDate day month year) = "Invalid date"
+  | otherwise = weekdays !! getZeller day month year
+
+main :: IO ()
+main = do
+  let tests = [(1, 1, 2000), (1, 3, 2000), (18, 9, 1985), (12, 4, 1861)]
+  mapM_ (\(day, month, year) -> putStrLn $ monthNames !! (month - 1) ++ " " ++ show day ++ ", " ++ show year ++ " is a " ++ getWeekday day month year) tests
