@@ -1,0 +1,45 @@
+module Main where
+
+weekdays :: [String]
+weekdays = ["Noneday", "Oneday", "Twosday", "Treblesday", "Foursday", "Fiveday", "Six-a-day"]
+
+doomsdayDates :: [[Int]]
+doomsdayDates = [[3, 4], [28, 29], [14, 14], [4, 4], [9, 9], [6, 6], [11, 11], [8, 8], [5, 5], [10, 10], [7, 7], [12, 12]]
+
+monthNames :: [String]
+monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+monthDays :: [Int]
+monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+isLeapYear :: Int -> Bool
+isLeapYear year = year `mod` 4 == 0 && (year `mod` 100 /= 0 || year `mod` 400 == 0)
+
+isValidDate :: Int -> Int -> Int -> Bool
+isValidDate day month year
+  | month < 1 || month > 12 || day < 1 || year < 1583 = False
+  | otherwise = let maxDays = if month == 2 && isLeapYear year then 29 else monthDays !! (month - 1)
+                  in day <= maxDays
+
+getDoomsday :: Int -> Int
+getDoomsday year = let c = year `div` 100
+                       y = year `mod` 100
+                       anchor = (5 * (c `mod` 4) + 2) `mod` 7
+                       a = y `div` 12
+                       b = y `mod` 12
+                       c_y = b `div` 4
+                   in (anchor + a + b + c_y) `mod` 7
+
+getWeekday :: Int -> Int -> Int -> String
+getWeekday day month year
+  | not (isValidDate day month year) = "Invalid date"
+  | otherwise = let doomsday = getDoomsday year
+                   refDay = doomsdayDates !! (month - 1) !! (if isLeapYear year && month <= 2 then 1 else 0)
+                   diff = (day - refDay) `mod` 7
+                   diff' = if diff < 0 then diff + 7 else diff
+               in weekdays !! ((doomsday + diff') `mod` 7)
+
+main :: IO ()
+main = do
+  let tests = [(18, 9, 1985), (12, 4, 1861), (25, 12, 2021), (7, 8, 1966)]
+  mapM_ (\(day, month, year) -> putStrLn $ monthNames !! (month - 1) ++ " " ++ show day ++ ", " ++ show year ++ " is a " ++ getWeekday day month year) tests
