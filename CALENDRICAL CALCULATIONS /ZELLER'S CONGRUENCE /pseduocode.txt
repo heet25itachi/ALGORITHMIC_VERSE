@@ -52,3 +52,38 @@ MAIN
         PRINT month_names[month - 1], " ", day, ", ", year, " is a ", weekday
     END FOR
 END MAIN
+
+
+
+
+
+Notes
+
+Purpose: Computes the day of the week for a given date using Zeller’s Congruence for the Gregorian calendar, with the modified formula ($ h = (q + \lfloor (13(m+1)/5) \rfloor + K + \lfloor K/4 \rfloor + \lfloor J/4 \rfloor + 5J) \mod 7 $) to ensure positive modulo results in programming languages.
+Formula Components:
+
+$ q $: Day of the month.
+$ m $: Month (3=March, ..., 12=December, 13=January, 14=February).
+$ K $: Year of century ($ \text{adjYear} \mod 100 $).
+$ J $: Zero-based century ($ \lfloor \text{adjYear} / 100 \rfloor $).
+$ \text{adjYear} $: Actual year for March–December, previous year for January–February.
+
+
+Day Indexing: Saturday=0, Sunday=1, ..., Friday=6, as specified in the Wikipedia document.
+Test Cases:
+
+January 1, 2000: Saturday
+March 1, 2000: Wednesday
+September 18, 1985: Wednesday
+April 12, 1861: Friday
+August 6, 2025: Wednesday (matches provided current date)
+
+
+Output Format: "[Month] [Day], [Year] is a [Weekday]" or "Invalid date".
+Constraints:
+
+Gregorian calendar, year ≥ 1583 (post-reform).
+Validates month (1–12), day (per month/leap year), and year.
+
+
+Modifications: Uses the computer-friendly formula ($+5J$ instead of $-2J$) to handle modulo correctly, as noted in the Wikipedia section “Basic modification.”
