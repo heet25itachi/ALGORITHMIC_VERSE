@@ -1,0 +1,54 @@
+module Main where
+
+import Text.Printf (printf)
+
+data Point = Point { x :: Double, y :: Double } deriving (Show)
+
+vertices :: [Point]
+vertices = [Point 0 0, Point 10 0, Point 10 10, Point 0 10]
+nVertices :: Int
+nVertices = 4
+
+computeNormal :: Int -> Point
+computeNormal i = let
+    v1 = vertices !! i
+    v2 = vertices !! (mod (i + 1) nVertices)
+    in Point (-(y v2 - y v1)) (x v2 - x v1)
+
+dotProduct :: Point -> Point -> Double
+dotProduct a b = x a * x b + y a * y b
+
+cyrusBeckClip :: Point -> Point -> (Bool, Point, Point)
+cyrusBeckClip p0 p1 = let
+    D = Point (x p1 - x p0) (y p1 - y p0)
+    in if x D == 0 && y D == 0 then (False, p0, p1) else go p0 p1 D 0 0.0 1.0
+  where
+    go p0 p1 D i tE tL
+      | i >= nVertices = if tE > tL || tE < 0 || tE > 1 || tL < 0 || tL > 1
+                         then (False, p0, p1)
+                         else (True, Point (x p0 + tE * x D) (y p0 + tE * y D),
+                                     Point (x p0 + tL * x D) (y p0 + tL * y D))
+      | otherwise = let
+          normal = computeNormal i
+          pe = vertices !! i
+          diff = Point (x p0 - x pe) (y p0 - y pe)
+          num = -dotProduct normal diff
+          den = dotProduct normal D
+          in if den == 0 then go p0 p1 D (i + 1) tE tL
+             else let t = num / den
+                  in if den > 0
+                     then go p0 p1 D (i + 1) tE (min t tL)
+                     else go p0 p1 D (i + 1) (max t tE) tL
+
+main :: IO ()
+main = do
+    let tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+    mapM_ (\(x0, y0, x1, y1) -> do
+        let p0 = Point x0 y0
+        let p1 = Point x1 y1
+        let (accept, p0New, p1New) = cyrusBeckClip p0 p1
+        printf "Line from (%.1f, %.1f) to (%.1f, %.1f): " x0 y0 x1 y1
+        if accept
+            then printf "Accepted, clipped to (%.1f, %.1f) to (%.1f, %.1f)\n" (x p0New) (y p0New) (x p1New) (y p1New)
+            else putStrLn "Rejected"
+        ) tests
