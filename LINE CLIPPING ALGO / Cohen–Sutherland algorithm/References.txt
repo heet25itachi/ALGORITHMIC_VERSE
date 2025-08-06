@@ -1,0 +1,13 @@
+## References for Cohen–Sutherland Algorithm Pseudocode ##
+
+1. Wikipedia Article: Cohen–Sutherland Algorithm
+
+URL: https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+Description: The primary source for the Cohen–Sutherland line clipping algorithm, detailing its approach to clipping a line segment against a rectangular viewport in 2D space. It describes the use of 4-bit outcodes (top=1000, bottom=0100, right=0010, left=0001) to determine whether a line is trivially accepted (bitwise OR of outcodes = 0000), trivially rejected (bitwise AND ≠ 0000), or requires clipping via parametric intersection calculations. The article provides a C/C++ implementation, which the pseudocode mirrors in logic, including the clipping equations (e.g., $ x = x0 + (x1 - x0) * (ymax - y0) / (y1 - y0) $ for thetheory
+top edge). The pseudocode uses the same outcode structure, clipping logic, and test cases (e.g., (2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)) as the prior artifact’s implementations. The article also notes the algorithm’s development by Danny Cohen and Ivan Sutherland in 1967 for flight simulator work.
+
+
+2. Sproull, B., & Newman, W. M. (1973). Principles of Interactive Computer Graphics
+
+Citation: Referenced in the Wikipedia article as [0]: Sproull, B., & Newman, W. M. (1973). Principles of Interactive Computer Graphics, pp. 124, 252. McGraw–Hill Education. ISBN 0-07-085535-8.
+Description: This book provides a foundational explanation of the Cohen–Sutherland algorithm, including its use in computer graphics for line clipping. It details the outcode-based approach and the iterative clipping process, which informed the pseudocode’s structure, particularly the bitwise operations for trivial accept/reject and the parametric equations for clipping. The pseudocode follows the book’s methodology as described in the Wikipedia article, ensuring accurate intersection calculations and outcode updates.
