@@ -1,0 +1,30 @@
+References for Zeller's Congruence Algorithm Pseudocode
+
+1. Wikipedia Article: Zeller’s Congruence
+
+URL: https://en.wikipedia.org/wiki/Zeller%27s_congruence
+Description: The primary source for Zeller’s Congruence algorithm, detailing Christian Zeller’s method for determining the day of the week for a given date in the Gregorian calendar. It provides the formula $ h = \left( q + \left\lfloor \frac{13(m+1)}{5} \right\rfloor + K + \left\lfloor \frac{K}{4} \right\rfloor + \left\lfloor \frac{J}{4} \right\rfloor - 2J \right) \mod 7 $, and the computer-friendly modification $ h = \left( q + \left\lfloor \frac{13(m+1)}{5} \right\rfloor + K + \left\lfloor \frac{K}{4} \right\rfloor + \left\lfloor \frac{J}{4} \right\rfloor + 5J \right) \mod 7 $, which the pseudocode implements. The article explains the month adjustment (January and February as months 13 and 14 of the previous year), day indexing (0=Saturday, ..., 6=Friday), and test cases (e.g., January 1, 2000 = Saturday; March 1, 2000 = Wednesday). The pseudocode uses these details, including the modified formula for programming compatibility, and incorporates test cases from the prior artifact (September 18, 1985; April 12, 1861) and the current date (August 6, 2025).
+
+
+2. Stockton, J. R. “Material Related to Zeller’s Congruence”
+
+Citation: Referenced in the Wikipedia article as [1]: Stockton, J. R. “Material Related to Zeller’s Congruence.” Merlyn, archived at NCTU Taiwan. Archived from the original on 2023-09-18. Retrieved 2021-03-10.
+Description: Provides additional details on Zeller’s Congruence, including variations and computational considerations. It discusses a Sunday-is-0 version with a modified month-length component ($ \left\lfloor \frac{13(m-2)}{5} \right\rfloor + 2 $). While the pseudocode uses the standard formula with the computer-friendly modification ($+5J$), this source confirms the algorithm’s adaptability and was consulted for context on computational implementations.
+
+
+3. Tøndering, Claus. “Week-related questions”
+
+Citation: Referenced in the Wikipedia article as [2]: Tøndering, Claus. “Week-related questions.” www.tondering.dk.
+Description: Describes a variation of Zeller’s Congruence with a Sunday-is-0 month-length component ($ \left\lfloor \frac{31(m-2)}{12} \right\rfloor $). This source was referenced in the Wikipedia document to highlight alternative formulations. The pseudocode uses the original month-length component ($ \left\lfloor \frac{13(m+1)}{5} \right\rfloor $) for consistency with the Wikipedia examples, but Tøndering’s work provides context for the algorithm’s flexibility.
+
+
+4. RFC 3339, Appendix B
+
+Citation: Referenced in the Wikipedia article as part of the “Common simplification” section.
+Description: Mentions a simplified version of Zeller’s Congruence for the Gregorian calendar, using a single 4-digit year: $ h = \left( q + \left\lfloor \frac{13(m+1)}{5} \right\rfloor + Y + \left\lfloor \frac{Y}{4} \right\rfloor - \left\lfloor \frac{Y}{100} \right\rfloor + \left\lfloor \frac{Y}{400} \right\rfloor \right) \mod 7 $. While the pseudocode uses the century-based formula ($ K, J $) for consistency with the Wikipedia document’s primary formula, this reference supports the algorithm’s applicability in computational standards.
+
+
+5. Keith, Michael (1990). C Code for Gregorian Dates
+
+Citation: Referenced in the Wikipedia article as part of [1] in the “Other variations” section.
+Description: Proposes a variation of Zeller’s Congruence replacing the month-length component with $ \left\lfloor \frac{23m}{9} \right\rfloor + 4 $. The pseudocode does not use this variation, sticking to the standard $ \left\lfloor \frac{13(m+1)}{5} \right\rfloor $, but Keith’s work was noted for completeness as it highlights alternative formulations for computational efficiency.
