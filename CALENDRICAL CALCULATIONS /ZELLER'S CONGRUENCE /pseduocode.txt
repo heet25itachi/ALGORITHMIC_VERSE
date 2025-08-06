@@ -1,0 +1,54 @@
+// Constants
+weekdays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] // Saturday=0, ..., Friday=6
+month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+// Function to check if a year is a leap year
+FUNCTION is_leap_year(year)
+    RETURN (year MOD 4 = 0 AND (year MOD 100 ≠ 0 OR year MOD 400 = 0))
+END FUNCTION
+
+// Function to validate date
+FUNCTION is_valid_date(day, month, year)
+    IF month < 1 OR month > 12 OR day < 1 OR year < 1583 THEN
+        RETURN FALSE
+    END IF
+    max_days = month_days[month - 1]
+    IF month = 2 AND is_leap_year(year) THEN
+        max_days = 29
+    END IF
+    RETURN day ≤ max_days
+END FUNCTION
+
+// Function to calculate Zeller's Congruence
+FUNCTION get_zeller(day, month, year)
+    // Adjust month and year for January and February
+    IF month = 1 OR month = 2 THEN
+        month = month + 12
+        year = year - 1
+    END IF
+    q = day
+    m = month
+    K = year MOD 100 // Year of century
+    J = FLOOR(year / 100) // Zero-based century
+    h = (q + FLOOR((13 * (m + 1)) / 5) + K + FLOOR(K / 4) + FLOOR(J / 4) + 5 * J) MOD 7
+    RETURN h
+END FUNCTION
+
+// Function to get the day of the week
+FUNCTION get_weekday(day, month, year)
+    IF NOT is_valid_date(day, month, year) THEN
+        RETURN "Invalid date"
+    END IF
+    h = get_zeller(day, month, year)
+    RETURN weekdays[h]
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    tests = [(1, 1, 2000), (1, 3, 2000), (18, 9, 1985), (12, 4, 1861), (6, 8, 2025)]
+    FOR EACH (day, month, year) IN tests
+        weekday = get_weekday(day, month, year)
+        PRINT month_names[month - 1], " ", day, ", ", year, " is a ", weekday
+    END FOR
+END MAIN
