@@ -1,0 +1,65 @@
+module Main where
+
+import Text.Printf (printf)
+
+data OutCode = OutCode Int deriving (Eq, Ord)
+
+inside, left, right, bottom, top :: OutCode
+inside = OutCode 0
+left = OutCode 1
+right = OutCode 2
+bottom = OutCode 4
+top = OutCode 8
+
+xmin, ymin, xmax, ymax :: Double
+xmin = 0.0
+ymin = 0.0
+xmax = 10.0
+ymax = 10.0
+
+computeOutcode :: Double -> Double -> OutCode
+computeOutcode x y = OutCode code
+  where
+    code = (if x < xmin then left' else 0) .|.
+           (if x > xmax then right' else 0) .|.
+           (if y < ymin then bottom' else 0) .|.
+           (if y > ymax then top' else 0)
+    left' = let OutCode c = left in c
+    right' = let OutCode c = right in c
+    bottom' = let OutCode c = bottom in c
+    top' = let OutCode c = top in c
+
+(.|.) :: OutCode -> OutCode -> Int
+OutCode a .|. OutCode b = a .|. b
+
+(.&.) :: OutCode -> OutCode -> Int
+OutCode a .&. OutCode b = a .&. b
+
+cohenSutherlandClip :: Double -> Double -> Double -> Double -> (Bool, Double, Double, Double, Double)
+cohenSutherlandClip x0 y0 x1 y1 = go x0 y0 x1 y1 (computeOutcode x0 y0) (computeOutcode x1 y1)
+  where
+    go x0 y0 x1 y1 outcode0 outcode1
+      | outcode0 .|. outcode1 == 0 = (True, x0, y0, x1, y1)
+      | outcode0 .&. outcode1 /= 0 = (False, x0, y0, x1, y1)
+      | otherwise = let
+          OutCode outcode_out = if outcode1 > outcode0 then outcode1 else outcode0
+          (x, y) = if outcode_out .&. let OutCode t = top in t /= 0
+                     then (x0 + (x1 - x0) * (ymax - y0) / (y1 - y0), ymax)
+                     else if outcode_out .&. let OutCode b = bottom in b /= 0
+                            then (x0 + (x1 - x0) * (ymin - y0) / (y1 - y0), ymin)
+                            else if outcode_out .&. let OutCode r = right in r /= 0
+                                   then (xmax, y0 + (y1 - y0) * (xmax - x0) / (x1 - x0))
+                                   else (xmin, y0 + (y1 - y0) * (xmin - x0) / (x1 - x0))
+          in if outcode_out == let OutCode o = outcode0 in o
+               then go x y x1 y1 (computeOutcode x y) outcode1
+               else go x0 y0 x y outcode0 (computeOutcode x y)
+
+main :: IO ()
+main = do
+  let tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+  mapM_ (\(x0, y0, x1, y1) -> do
+    let (accept, x0', y0', x1', y1') = cohenSutherlandClip x0 y0 x1 y1
+    printf "Line from (%.1f, %.1f) to (%.1f, %.1f): " x0 y0 x1 y1
+    if accept
+      then printf "Accepted, clipped to (%.1f, %.1f) to (%.1f, %.1f)\n" x0' y0' x1' y1'
+      else putStrLn "Rejected") tests
