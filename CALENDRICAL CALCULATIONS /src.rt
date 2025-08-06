@@ -1,0 +1,48 @@
+fn get_month_index(month: i32) -> i32 {
+    let indices = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if month >= 1 && month <= 12 {
+        indices[(month - 1) as usize]
+    } else {
+        -1
+    }
+}
+
+fn get_month_name(month: i32) -> &'static str {
+    let names = ["January", "February", "March", "April", "May", "June",
+                 "July", "August", "September", "October", "November", "December"];
+    if month >= 1 && month <= 12 {
+        names[(month - 1) as usize]
+    } else {
+        "Invalid"
+    }
+}
+
+fn days_in_month(month: i32, year: i32) -> i32 {
+    if month < 1 || month > 12 || year < 1753 {
+        return -1;
+    }
+    let m = get_month_index(month) as f64;
+    let y = year as f64;
+
+    let mut d = 30.0 + (0.6 * m + 0.4).floor() - (0.6 * m - 0.2).floor() - 2.0 * (m / 12.0).floor();
+    if m == 12.0 {
+        d += ((y - 1.0) / 4.0 - ((y - 1.0) / 4.0).floor() + 0.25).floor();
+        if year % 100 == 0 {
+            let century_term = (0.3 + ((y / 100.0).floor() - 3.0) / 4.5 - ((y / 100.0).floor() - 3.0) / 4.5).floor();
+            d += ((century_term + 99.0 + 100.0 * (y / 100.0 - (y / 100.0).floor())) / 100.0).floor() - 1.0;
+        }
+    }
+    d as i32
+}
+
+fn main() {
+    let tests = [(2, 2000), (3, 2023), (4, 2024), (2, 1900)];
+    for &(month, year) in tests.iter() {
+        let days = days_in_month(month, year);
+        if days != -1 {
+            println!("Days in {} {}: {}", get_month_name(month), year, days);
+        } else {
+            println!("Invalid input");
+        }
+    }
+}
