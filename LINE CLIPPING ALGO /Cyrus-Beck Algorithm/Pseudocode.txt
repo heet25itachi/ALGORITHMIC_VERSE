@@ -76,3 +76,40 @@ MAIN
         END IF
     END FOR
 END MAIN
+
+
+
+## Notes ##
+
+Purpose: Clips a line segment from $ (x_0, y_0) $ to $ (x_1, y_1) $ against a convex polygon using the parametric equation $ P(t) = P_0 + t (P_1 - P_0) $, computing intersection parameters via dot products and selecting the maximum entry ($ t_E $) and minimum exit ($ t_L $) points.
+Algorithm Details:
+
+Parametric Equation: $ P(t) = (x_0 + t (x_1 - x_0), y_0 + t (y_1 - y_0)) $, $ 0 \leq t \leq 1 $.
+Normals: Outward-facing, computed as $ N_i = (-(y_{i+1} - y_i), x_{i+1} - x_i) $ for edge from vertex $ i $ to $ i+1 $.
+Intersection Parameter: $ t = -\frac{N_i \cdot (P_0 - P_{E_i})}{N_i \cdot (P_1 - P_0)} $, where $ P_{E_i} $ is a point on edge $ i $.
+Classification: If $ N_i \cdot (P_1 - P_0) > 0 $, exit point; if $ < 0 $, entry point; if $ = 0 $, parallel (ignored).
+Clipping: Accept if $ 0 \leq t_E \leq t_L \leq 1 $; compute clipped points $ P(t_E) $, $ P(t_L) $.
+
+
+Test Cases (same as prior artifact):
+
+(2, 2, 8, 8): Accepted, no clipping.
+(12, 12, 15, 15): Rejected.
+(5, 12, 15, 5): Clipped to (5, 10, 10, 5).
+(-5, 5, 15, 5): Clipped to (0, 5, 10, 5).
+
+
+Polygon: Rectangle with vertices (0, 0), (10, 0), (10, 10), (0, 10) (clockwise), with outward normals:
+
+Edge 0: (0, -1).
+Edge 1: (1, 0).
+Edge 2: (0, 1).
+Edge 3: (-1, 0).
+
+
+Output Format: "Line from (x0, y0) to (x1, y1): [Accepted/Rejected][, clipped to (x0_new, y0_new) to (x1_new, y1_new)]".
+Constraints:
+
+Assumes convex polygon (clockwise vertices) and non-degenerate line ($ P_0 \neq P_1 $).
+Avoids division by zero by checking $ N_i \cdot D \neq 0 $.
+Uses floating-point coordinates for precision.
