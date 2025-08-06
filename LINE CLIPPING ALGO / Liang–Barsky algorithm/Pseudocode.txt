@@ -1,0 +1,73 @@
+// Constants: Clipping window
+xmin = 0
+ymin = 0
+xmax = 10
+ymax = 10
+
+// Function to clip a line from (x0, y0) to (x1, y1) against rectangular window
+FUNCTION liang_barsky_clip(xmin, ymin, xmax, ymax, x0, y0, x1, y1)
+    // Validate window
+    IF xmin >= xmax OR ymin >= ymax THEN
+        RETURN FALSE, x0, y0, x1, y1
+    END IF
+
+    // Compute direction vector
+    dx = x1 - x0
+    dy = y1 - y0
+
+    // Define p and q for four boundaries: left, right, bottom, top
+    p = [ -dx, dx, -dy, dy ]
+    q = [ x0 - xmin, xmax - x0, y0 - ymin, ymax - y0 ]
+
+    // Initialize t parameters
+    u1 = 0.0
+    u2 = 1.0
+
+    // Process each boundary
+    FOR i FROM 0 TO 3
+        // Early rejection: parallel and outside
+        IF p[i] = 0 AND q[i] < 0 THEN
+            RETURN FALSE, x0, y0, x1, y1
+        END IF
+        IF p[i] ≠ 0 THEN
+            t = q[i] / p[i]
+            IF p[i] < 0 THEN
+                // Entry point: update maximum u1
+                IF t > u1 THEN
+                    u1 = t
+                END IF
+            ELSE
+                // Exit point: update minimum u2
+                IF t < u2 THEN
+                    u2 = t
+                END IF
+            END IF
+        END IF
+    END FOR
+
+    // Check if valid segment exists
+    IF u1 > u2 THEN
+        RETURN FALSE, x0, y0, x1, y1
+    END IF
+
+    // Compute clipped endpoints
+    x0_new = x0 + u1 * dx
+    y0_new = y0 + u1 * dy
+    x1_new = x0 + u2 * dx
+    y1_new = y0 + u2 * dy
+    RETURN TRUE, x0_new, y0_new, x1_new, y1_new
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+    FOR EACH (x0, y0, x1, y1) IN tests
+        accept, x0_new, y0_new, x1_new, y1_new = liang_barsky_clip(xmin, ymin, xmax, ymax, x0, y0, x1, y1)
+        PRINT "Line from (", x0, ", ", y0, ") to (", x1, ", ", y1, "): "
+        IF accept THEN
+            PRINT "Accepted, clipped to (", x0_new, ", ", y0_new, ") to (", x1_new, ", ", y1_new, ")"
+        ELSE
+            PRINT "Rejected"
+        END IF
+    END FOR
+END MAIN
