@@ -1,0 +1,38 @@
+module Main where
+
+import Text.Printf (printf)
+
+data Point = Point { x :: Double, y :: Double } deriving (Show)
+
+liangBarskyClip :: Double -> Double -> Double -> Double -> Point -> Point -> (Bool, Point, Point)
+liangBarskyClip xmin ymin xmax ymax p0 p1
+  | xmin >= xmax || ymin >= ymax = (False, p0, p1)
+  | otherwise = let
+      dx = x p1 - x p0
+      dy = y p1 - y p0
+      p = [-dx, dx, -dy, dy]
+      q = [x p0 - xmin, xmax - x p0, y p0 - ymin, ymax - y p0]
+      (u1, u2) = foldl update (0.0, 1.0) (zip p q)
+      in if u1 > u2 then (False, p0, p1)
+         else (True, Point (x p0 + u1 * dx) (y p0 + u1 * dy),
+                     Point (x p0 + u2 * dx) (y p0 + u2 * dy))
+  where
+    update (u1, u2) (pi, qi)
+      | pi == 0 && qi < 0 = (u1, -1) -- Force rejection
+      | pi == 0 = (u1, u2)
+      | pi < 0 = (max u1 (qi / pi), u2)
+      | otherwise = (u1, min u2 (qi / pi))
+
+main :: IO ()
+main = do
+    let xmin = 0; ymin = 0; xmax = 10; ymax = 10
+    let tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+    mapM_ (\(x0, y0, x1, y1) -> do
+        let p0 = Point x0 y0
+        let p1 = Point x1 y1
+        let (accept, p0New, p1New) = liangBarskyClip xmin ymin xmax ymax p0 p1
+        printf "Line from (%.1f, %.1f) to (%.1f, %.1f): " x0 y0 x1 y1
+        if accept
+            then printf "Accepted, clipped to (%.1f, %.1f) to (%.1f, %.1f)\n" (x p0New) (y p0New) (x p1New) (y p1New)
+            else putStrLn "Rejected"
+        ) tests
