@@ -1,0 +1,117 @@
+// Constants
+INSIDE = 0      // 0000
+LEFT = 1        // 0001
+RIGHT = 2       // 0010
+BOTTOM = 4      // 0100
+TOP = 8         // 1000
+XMIN = 0.0      // Viewport left
+YMIN = 0.0      // Viewport bottom
+XMAX = 10.0     // Viewport right
+YMAX = 10.0     // Viewport top
+
+// Function to compute outcode for a point (x, y)
+FUNCTION compute_outcode(x, y)
+    code = INSIDE
+    IF x < XMIN THEN
+        code = code BITWISE_OR LEFT
+    ELSE IF x > XMAX THEN
+        code = code BITWISE_OR RIGHT
+    END IF
+    IF y < YMIN THEN
+        code = code BITWISE_OR BOTTOM
+    ELSE IF y > YMAX THEN
+        code = code BITWISE_OR TOP
+    END IF
+    RETURN code
+END FUNCTION
+
+// Function to clip a line from (x0, y0) to (x1, y1) against viewport
+FUNCTION cohen_sutherland_clip(x0, y0, x1, y1)
+    // Validate viewport
+    IF XMIN >= XMAX OR YMIN >= YMAX THEN
+        RETURN FALSE, x0, y0, x1, y1
+    END IF
+
+    outcode0 = compute_outcode(x0, y0)
+    outcode1 = compute_outcode(x1, y1)
+    accept = FALSE
+
+    WHILE TRUE
+        // Trivial accept: both points inside (bitwise OR = 0)
+        IF outcode0 BITWISE_OR outcode1 = 0 THEN
+            accept = TRUE
+            BREAK
+        // Trivial reject: both points share an outside region (bitwise AND ≠ 0)
+        ELSE IF outcode0 BITWISE_AND outcode1 ≠ 0 THEN
+            BREAK
+        // Non-trivial: clip the line
+        ELSE
+            x = 0.0
+            y = 0.0
+            // Pick the outside point (larger outcode)
+            outcode_out = IF outcode1 > outcode0 THEN outcode1 ELSE outcode0
+            // Compute intersection with viewport edge
+            IF outcode_out BITWISE_AND TOP ≠ 0 THEN
+                x = x0 + (x1 - x0) * (YMAX - y0) / (y1 - y0)
+                y = YMAX
+            ELSE IF outcode_out BITWISE_AND BOTTOM ≠ 0 THEN
+                x = x0 + (x1 - x0) * (YMIN - y0) / (y1 - y0)
+                y = YMIN
+            ELSE IF outcode_out BITWISE_AND RIGHT ≠ 0 THEN
+                y = y0 + (y1 - y0) * (XMAX - x0) / (x1 - x0)
+                x = XMAX
+            ELSE IF outcode_out BITWISE_AND LEFT ≠ 0 THEN
+                y = y0 + (y1 - y0) * (XMIN - x0) / (x1 - x0)
+                x = XMIN
+            END IF
+            // Update the outside point
+            IF outcode_out = outcode0 THEN
+                x0 = x
+                y0 = y
+                outcode0 = compute_outcode(x0, y0)
+            ELSE
+                x1 = x
+                y1 = y
+                outcode1 = compute_outcode(x1, y1)
+            END IF
+        END IF
+    END WHILE
+    RETURN accept, x0, y0, x1, y1
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    tests = [(2, 2, 8, 8), (12, 12, 15, 15), (5, 12, 15, 5), (-5, 5, 15, 5)]
+    FOR EACH (x0, y0, x1, y1) IN tests
+        accept, x0_new, y0_new, x1_new, y1_new = cohen_sutherland_clip(x0, y0, x1, y1)
+        PRINT "Line from (", x0, ", ", y0, ") to (", x1, ", ", y1, "): "
+        IF accept THEN
+            PRINT "Accepted, clipped to (", x0_new, ", ", y0_new, ") to (", x1_new, ", ", y1_new, ")"
+        ELSE
+            PRINT "Rejected"
+        END IF
+    END FOR
+END MAIN
+
+
+
+# Notes # 
+
+Purpose: Clips a line segment from (x0, y0) to (x1, y1) against a rectangular viewport (0, 0, 10, 10) using the Cohen–Sutherland algorithm, computing outcodes and iteratively clipping until trivial accept or reject.
+Algorithm Details:
+
+Outcodes: 4-bit codes (INSIDE=0000, LEFT=0001, RIGHT=0010, BOTTOM=0100, TOP=1000).
+Trivial Accept: Both points inside (outcode0 | outcode1 = 0).
+Trivial Reject: Both points share an outside region (outcode0 & outcode1 ≠ 0).
+Clipping: Uses parametric equations to find intersections with viewport edges, updating the outside point and recomputing outcodes.
+
+
+Test Cases (same as prior artifact):
+
+(2, 2, 8, 8): Accepted, no clipping (both points inside).
+(12, 12, 15, 15): Rejected (both points outside, same region).
+(5, 12, 15, 5): Accepted, clipped to (5, 10, 10, 5).
+(-5, 5, 15, 5): Accepted, clipped to (0, 5, 10, 5).
+
+
+Output Format: "Line from (x0, y0) to (x1, y1): [Accepted/Rejected][, clipped to (x0_new, y0_new) to (x1_new, y1_new)]".
