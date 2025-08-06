@@ -1,0 +1,31 @@
+
+### References for the Doomsday Rule Algorithm Pseudocode
+
+1. **Wikipedia Article: Doomsday Rule**
+   - **URL**: https://en.wikipedia.org/wiki/Doomsday_rule
+   - **Description**: The primary source for the Doomsday Rule algorithm, detailing John Conway’s method for determining the day of the week for a given date. It describes the three-step process: calculating the century’s anchor day (`5 * (c mod 4) mod 7 + Tuesday`), the year’s doomsday (`d = (a + b + c) mod 7` where `a = floor(y/12)`, `b = y mod 12`, `c = floor(b/4)`), and the weekday using a nearby doomsday date (e.g., 4/4, 6/6, 9/5). The pseudocode directly implements this method, including doomsday dates, leap year logic, and Conway’s mnemonic weekday names (Noneday, Oneday, ..., Six-a-day). The article also provides test cases (e.g., September 18, 1985; April 12, 1861) used in the pseudocode.
+
+2. **Conway, J. H. (1973). "Tomorrow is a New Day"**
+   - **Citation**: Referenced in the Wikipedia article as [1]: Conway, J. H. (October 1973). "Tomorrow is a New Day". The Mathematical Intelligencer.
+   - **Description**: John Conway’s original publication introducing the Doomsday Rule algorithm in 1973. The Wikipedia document bases its description on this source, which outlines the mental calculation method leveraging doomsday dates and century/year calculations. The pseudocode follows this formulation, using the same mathematical steps and doomsday reference dates (e.g., 4/4, 6/6) as described.
+
+3. **Conway, J. H. (October 1993). "An Algorithm for Any Day"**
+   - **Citation**: Referenced in the Wikipedia article as [2]: Conway, J. H. (October 1993). "An Algorithm for Any Day". Eureka. 53: 20–24.
+   - **Description**: A later publication by Conway refining the Doomsday Rule, published in the Eureka journal. It provides additional details on the algorithm’s application and practice, including the use of memorable doomsday dates and the century anchor formula. The pseudocode incorporates these elements, particularly the anchor day calculation (`5 * (c mod 4) + 2 mod 7`) and the year’s doomsday computation.
+
+4. **Carroll, L. (1887). "To Find the Day of the Week for Any Given Date"**
+   - **Citation**: Referenced in the Wikipedia article as [3]: Carroll, L. (March 31, 1887). "To Find the Day of the Week for Any Given Date". Nature. 35 (909): 517. Bibcode:1887Natur..35..517C. doi:10.1038/035517a0.
+   - **Description**: Lewis Carroll’s perpetual calendar algorithm, which inspired Conway’s Doomsday Rule. While the pseudocode implements Conway’s method, this reference provides historical context for the algorithm’s development, emphasizing the use of reference days to simplify weekday calculations. The concept of using specific dates (like doomsdays) is rooted in Carroll’s approach.
+
+5. **Chamberlain, T. (2001). "Conway’s Doomsday Algorithm"**
+   - **Citation**: Referenced in the Wikipedia article as [4]: Chamberlain, T. (2001). "Conway’s Doomsday Algorithm". The Mathematical Gazette. 85 (503): 270–272. doi:10.2307/3622016. JSTOR 3622016.
+   - **Description**: A detailed explanation of Conway’s Doomsday Rule, including its mathematical basis and practical application. This source reinforces the algorithm’s steps as described in the Wikipedia article, particularly the century anchor and year doomsday calculations, which are directly implemented in the pseudocode.
+
+6. **Conway, J. H.; Guy, R. K. (1995). *The Book of Numbers***
+   - **Citation**: Referenced in the Wikipedia article as [5]: Conway, J. H.; Guy, R. K. (1995). The Book of Numbers. New York: Springer-Verlag. pp. 179–181. ISBN 978-0-387-97993-9.
+   - **Description**: This book includes a section on the Doomsday Rule, providing a mathematical and illustrative explanation of the algorithm. It supports the Wikipedia description by detailing the doomsday dates and their use in mental calculations, which the pseudocode incorporates (e.g., 9/5, 7/11 for odd months).
+
+7. **Nakai, H. (2023). "Doomsday Algorithm"**
+   - **Citation**: Referenced in the Wikipedia article as [15]: Nakai, H. (2023). "Doomsday Algorithm". arXiv:2308.10866 [math.HO].
+   - **Description**: Proposes an alternative formula for calculating the doomsday (`5 * (c_2 + y_2 - 1) + 10y mod 7`). The pseudocode uses Conway’s original method for consistency with the Wikipedia examples, but this reference was noted for completeness. It was not directly used in the pseudocode but confirms the algorithm’s mathematical validity.
+
