@@ -1,0 +1,18 @@
+## References for Liang–Barsky Algorithm Pseudocode ##
+
+1. Wikipedia Article: Liang–Barsky Algorithm
+
+URL: https://en.wikipedia.org/wiki/Liang%E2%80%93Barsky_algorithm
+Description: The primary source for the Liang–Barsky line clipping algorithm, detailing its approach to clipping a line segment against a rectangular window in 2D space. It describes the parametric equations $ x = x_0 + t \Delta x $, $ y = y_0 + t \Delta y $, where $ \Delta x = x_1 - x_0 $, $ \Delta y = y_1 - y_0 $, and $ 0 \leq t \leq 1 $. The algorithm uses inequalities $ x_{min} \leq x_0 + t \Delta x \leq x_{max} $ and $ y_{min} \leq y_0 + t \Delta y \leq y_{max} $, expressed as $ t p_i \leq q_i $ for four boundaries (left: $ p_1 = -\Delta x $, $ q_1 = x_0 - x_{min} $; right: $ p_2 = \Delta x $, $ q_2 = x_{max} - x_0 $; bottom: $ p_3 = -\Delta y $, $ q_3 = y_0 - y_{min} $; top: $ p_4 = \Delta y $, $ q_4 = y_{max} - y_0 $). The article explains early rejection (if $ p_i = 0 $ and $ q_i < 0 $), computing $ t = q_i / p_i $, and selecting the maximum entry ($ u_1 $) and minimum exit ($ u_2 $) parameters. The pseudocode implements this logic, matching the test cases and output format from the prior artifact (artifact_id: 041bb10c-0bb5-4a77-aef2-85718bd574c4). It includes a C++ implementation with graphical output, which the pseudocode simplifies to console output for portability. The article notes the algorithm’s efficiency over Cohen–Sutherland and its development by You-Dong Liang and Brian A. Barsky in 1984.
+
+
+2. Liang, Y. D., & Barsky, B. A. (1984). A New Concept and Method for Line Clipping. ACM Transactions on Graphics, 3(1), 1–22.
+
+Citation: Referenced in the prior artifact as the original publication for the Liang–Barsky algorithm.
+Description: This paper introduces the Liang–Barsky algorithm, providing the theoretical foundation for clipping lines against a rectangular window. It details the use of parametric equations, the formulation of the four inequalities, and the process of computing $ u_1 $ (maximum entry) and $ u_2 $ (minimum exit) to determine the clipped segment. The pseudocode incorporates the paper’s methodology (via the Wikipedia description), ensuring accurate computation of $ t = q_i / p_i $, classification of entry/exit points, and early rejection for parallel lines outside the window.
+
+
+3. GeeksforGeeks: Liang–Barsky Algorithm
+
+URL: https://www.geeksforgeeks.org/liang-barsky-algorithm/
+Description: A supplementary source that clarifies implementation details, particularly the computation of $ p_i $ and $ q_i $, handling of parallel cases ($ p_i = 0 $, $ q_i < 0 $), and the updating of $ u_1 $ and $ u_2 $. It provides a step-by-step explanation of the algorithm, including pseudocode that aligns with the Wikipedia description. The pseudocode adopts this source’s approach for clarity, especially in organizing the loop over the four boundaries and ensuring early rejection. The test cases and rectangular window used in the pseudocode align with this source’s examples for consistency with the prior artifact.
