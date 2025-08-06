@@ -1,0 +1,18 @@
+## References for Cyrus–Beck Algorithm Pseudocode ##
+
+1. Wikipedia Article: Cyrus–Beck Algorithm
+
+URL: https://en.wikipedia.org/wiki/Cyrus%E2%80%93Beck_algorithm
+Description: The primary source for the Cyrus–Beck line clipping algorithm, describing its use for clipping a line segment against a convex polygon in 2D space. It outlines the parametric equation $ \mathbf{p}(t) = t \mathbf{p}_1 + (1-t) \mathbf{p}_0 $, where $ 0 \leq t \leq 1 $, and the use of dot products to compute intersections: $ \mathbf{n}_i \cdot (\mathbf{p}(t) - \mathbf{p}_{E_i}) = 0 $, where $ \mathbf{n}_i $ is the outward normal of edge $ i $, and $ \mathbf{p}_{E_i} $ is a point on the edge. The article explains classifying intersections based on the sign of $ \mathbf{n}_i \cdot (\mathbf{p}_1 - \mathbf{p}_0) $ (positive for exit, negative for entry, zero for parallel) and selecting the maximum entry ($ t_E $) and minimum exit ($ t_L $) parameters. The pseudocode implements this logic, using the intersection formula $ t = -\frac{\mathbf{n}_i \cdot (\mathbf{p}_0 - \mathbf{p}_{E_i})}{\mathbf{n}_i \cdot (\mathbf{p}_1 - \mathbf{p}_0)} $, and matches the test cases and output format from the prior artifact (artifact_id: a2f93de5-9006-49ce-b8ee-50eb15a6073b). The article notes the algorithm’s efficiency over Cohen–Sutherland for convex polygons and its development by Cyrus and Beck in 1978.
+
+
+2. Cyrus, M., & Beck, J. (1978). Generalized Two- and Three-Dimensional Clipping. Computers & Graphics, 3(1), 23–28.
+
+Citation: Referenced in the prior artifact as the original publication for the Cyrus–Beck algorithm.
+Description: This paper introduces the Cyrus–Beck algorithm, providing the theoretical foundation for clipping lines against convex polygons. It details the use of parametric equations, outward normals, and dot products to compute intersection points, as well as the classification of entry and exit points. The pseudocode incorporates the paper’s methodology (via the Wikipedia description), particularly the calculation of $ t $ values and the selection of $ t_E $ and $ t_L $, ensuring accurate clipping within the polygon’s interior.
+
+
+3. GeeksforGeeks: Line Clipping | Set 2 (Cyrus–Beck Algorithm)
+
+URL: https://www.geeksforgeeks.org/line-clipping-set-2-cyrus-beck-algorithm/
+Description: A supplementary source used in the prior artifact to clarify implementation details, particularly the computation of outward normals for polygon edges and the handling of entry/exit points. It provides a step-by-step explanation of the algorithm, including the formula for $ t $ and the logic for updating $ t_E $ (maximum entry) and $ t_L $ (minimum exit). The pseudocode adopts this source’s approach for normal computation (e.g., $ \mathbf{n}_i = (-(y_{i+1} - y_i), x_{i+1} - x_i) $) and the classification of intersections based on the sign of the denominator $ \mathbf{n}_i \cdot (\mathbf{p}_1 - \mathbf{p}_0) $. The test cases and rectangular polygon used in the pseudocode align with this source’s examples for consistency.
