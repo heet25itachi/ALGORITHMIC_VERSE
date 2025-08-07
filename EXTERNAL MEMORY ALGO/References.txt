@@ -1,0 +1,33 @@
+## References ## 
+
+1. Wikipedia Article: External memory algorithm
+
+URL: https://en.wikipedia.org/wiki/External_memory_algorithm
+Description: The primary source for the external merge sort algorithm, describing the external memory model (I/O model) with cache size $ M $, block size $ B $, and $ N $ elements. It specifies that external sorting can be done via a $ \frac{M}{B} $-way merge sort, achieving the asymptotically optimal runtime of $ O\left(\frac{N}{B}\log_{\frac{M}{B}}\frac{N}{B}\right) $. The pseudocode implements this approach, dividing the array into runs of size $ M $, sorting them with quicksort, and performing a 2-way merge (since $ \frac{M}{B} = 2 $) on blocks of size $ B $. The article provides the theoretical foundation and mentions the model’s introduction by Aggarwal and Vitter (1988). The test case and output format align with prior artifacts.
+
+
+2. Aggarwal, A., & Vitter, J. S. (1988). The input/output complexity of sorting and related problems. Communications of the ACM, 31(9), 1116–1127.
+
+Citation: Cited in the Wikipedia article (Reference [4]).
+DOI: 10.1145/48529.48535
+Description: Introduces the external memory model, defining the I/O complexity for sorting as $ O\left(\frac{N}{B}\log_{\frac{M}{B}}\frac{N}{B}\right) $. The paper provides the theoretical basis for the pseudocode’s merge sort algorithm, which optimizes for block transfers. The pseudocode follows this model by processing blocks of size $ B $ and using a $ \frac{M}{B} $-way merge, simplified to a 2-way merge for the test case ($ M = 8 $, $ B = 4 $).
+
+
+3. Vitter, J. S. (2008). Algorithms and Data Structures for External Memory. Series on Foundations and Trends in Theoretical Computer Science, 2, 305–474.
+
+Citation: Cited in the Wikipedia article (Reference [2]).
+DOI: 10.1561/0400000014
+Description: A comprehensive resource on external memory algorithms, detailing the $ \frac{M}{B} $-way merge sort for external sorting. It explains the process of dividing data into runs, sorting them in memory, and merging using blocks of size $ B $. The pseudocode implements this approach, using quicksort for in-memory sorting and a 2-way merge to combine runs, simulating block transfers. The book supports the algorithm’s I/O efficiency and provides context for handling large datasets.
+
+
+4. Vitter, J. S. (2001). External Memory Algorithms and Data Structures: Dealing with MASSIVE DATA. ACM Computing Surveys, 33(2), 209–271.
+
+Citation: Cited in the Wikipedia article (Reference [1]).
+DOI: 10.1145/384192.384193
+Description: Discusses external memory algorithms, including sorting, with a focus on minimizing I/O operations. It reinforces the $ \frac{M}{B} $-way merge sort’s optimality and provides practical considerations for implementation. The pseudocode draws on this by structuring the algorithm to process blocks of size $ B $, ensuring efficient memory transfers in the external memory model.
+
+
+5. Demaine, E. (2002). Cache-Oblivious Algorithms and Data Structures. Lecture Notes from the EEF Summer School on Massive Data Sets. Aarhus: BRICS.
+
+Citation: Cited in the Wikipedia article (Reference [5]).
+Description: While focused on cache-oblivious algorithms, this source provides context for the external memory model by contrasting it with the cache-aware model, where block size $ B $ and cache size $ M $ are known. The pseudocode uses these parameters explicitly, as allowed in the external memory model, to optimize block transfers during merging. This reference supports the pseudocode’s design by clarifying the model’s assumptions.
