@@ -1,0 +1,27 @@
+## References ##
+
+1. Wikipedia Article: Funnelsort
+
+URL: https://en.wikipedia.org/wiki/Funnelsort
+Description: The primary source for the Funnelsort algorithm, describing its cache-oblivious nature, splitting into $ N^{1/3} $ subarrays, and merging with a $ k $-merger. It details the memory transfer complexity $ O\left(\frac{N}{L}\log_Z N\right) $ and runtime $ \Theta(N \log N) $, under the tall cache assumption $ Z = \Omega(L^2) $. The pseudocode implements this approach, using $ N = 16 $, $ Z = 8 $, $ L = 2 $, and the test array from the prior artifact.
+
+
+2. Frigo, M., Leiserson, C. E., Prokop, H., & Ramachandran, S. (1999). Cache-oblivious algorithms. Proceedings of the 40th IEEE Symposium on Foundations of Computer Science (FOCS 99), 285–297.
+
+Citation: Cited in the Wikipedia article (Reference [0]).
+Extended Abstract: Available at IEEE, CiteSeer.
+Description: Introduces the cache-oblivious model and Funnelsort, detailing the $ k $-merger structure with $ \sqrt{k} $-mergers and buffers of size $ 2k^{3/2} $. The pseudocode follows this structure, using recursive merging and in-memory simulation of cache-oblivious behavior.
+
+
+3. Prokop, H. (1999). Cache-Oblivious Algorithms. Master’s thesis, MIT.
+
+Citation: Cited in the Wikipedia article (Reference [1]).
+Description: Provides a detailed analysis of Funnelsort, including the space complexity $ O(k^2) $ for a $ k $-merger and cache miss complexity $ O\left(\frac{k^3 \log_Z k}{L}\right) $. The pseudocode reflects this by implementing the $ k $-merger with recursive calls and buffer management, using $ k = 3 $ and $ \sqrt{k} = 2 $.
+
+
+4. Brodal, G. S., & Fagerberg, R. (2002). Cache Oblivious Distribution Sweeping. Automata, Languages and Programming, Lecture Notes in Computer Science, Vol. 2380, 426–438.
+
+Citation: Cited in the Wikipedia article (Reference [2]).
+CiteSeerX: 10.1.1.117.6837
+DOI: 10.1007/3-540-45465-9_37
+Description: Introduces Lazy Funnelsort, a modification of Funnelsort that lazily fills buffers only when empty. The pseudocode focuses on standard Funnelsort for simplicity but acknowledges this reference for context on cache-oblivious applications. The test case and parameters align with the standard algorithm’s structure.
