@@ -1,0 +1,50 @@
+module Main where
+
+import Data.List (sort, nub, (\\))
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
+import Control.Monad.ST (runST, ST)
+
+externalBFS :: [V.Vector Int] -> Int -> Int -> Int -> IO ()
+externalBFS adj start m _b = do
+  let n = length adj
+      go visited level prevLevel prevPrevLevel t
+        | null level = return ()
+        | otherwise = do
+            -- Step 1: Compute A(t) = neighbors of L(t-1)
+            let neighbors = concatMap (\v -> V.toList (adj !! v)) level
+
+            -- Step 2: Compute A'(t) by removing duplicates
+            let uniqueNeighbors = nub (sort neighbors)
+
+            -- Step 3: Compute L(t) = A'(t) \ (L(t-1) \cup L(t-2))
+            let temp = prevLevel ++ prevPrevLevel
+                tempUnique = nub (sort temp)
+                newLevel = uniqueNeighbors \\ tempUnique
+
+            -- Print current level
+            unless (null newLevel) $
+              putStrLn $ "Level " ++ show (t + 1) ++ ": " ++ unwords (map show newLevel)
+
+            -- Update levels
+            go (foldr (\v s -> V.update s (V.fromList [(v, True)])) visited newLevel)
+               newLevel level prevLevel (t + 1)
+
+  -- Initialize L(0) = {start}
+  putStrLn $ "Level 0: " ++ show start
+  go (V.update (V.replicate n False) (V.fromList [(start, True)]))
+     [start] [] [] 0
+
+main :: IO ()
+main = do
+  let n = 10
+      edges = [(0,1), (0,3), (0,9), (1,0), (1,2), (1,4), (2,1), (2,3),
+               (3,0), (3,2), (3,4), (4,1), (4,3), (4,5), (5,4), (5,6),
+               (5,8), (6,5), (6,7), (7,6), (7,8), (8,5), (8,7), (8,9),
+               (9,0), (9,8)]
+      adj = V.fromList [ V.fromList [ v | (u, v) <- edges, u == i ] | i <- [0..n-1] ]
+
+  putStrLn "Adjacency lists:"
+  V.imapM_ (\i list -> putStrLn $ show i ++ ": " ++ unwords (map show (V.toList list))) adj
+
+  externalBFS adj 0 5 2
