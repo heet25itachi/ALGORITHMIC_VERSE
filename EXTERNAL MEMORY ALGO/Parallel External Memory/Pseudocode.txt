@@ -1,0 +1,211 @@
+// Helper function: Quicksort for small arrays
+FUNCTION quicksort(arr, left, right)
+    IF left >= right THEN
+        RETURN
+    END IF
+    pivot = arr[right]
+    i = left
+    j = right
+    WHILE i < j
+        WHILE i < j AND arr[i] <= pivot
+            i = i + 1
+        END WHILE
+        WHILE i < j AND arr[j] > pivot
+            j = j - 1
+        END WHILE
+        IF i < j THEN
+            SWAP arr[i], arr[j]
+        END IF
+    END WHILE
+    SWAP arr[right], arr[i]
+    quicksort(arr, left, i - 1)
+    quicksort(arr, i + 1, right)
+END FUNCTION
+
+// Helper function: PEMSELECT for pivot selection
+FUNCTION pem_select(arr, n, k)
+    IF n <= 5 THEN
+        temp = SORT(arr[0 .. n-1])
+        RETURN temp[k-1]
+    END IF
+    RETURN arr[k-1] // Simplified: direct access for small arrays
+END FUNCTION
+
+// Helper function: PEMMULTIPARTITION to partition array into buckets
+FUNCTION pem_multipartition(arr, n, pivots, d_sqrt, p)
+    counts = ARRAY of size p * d_sqrt, initialized to 0
+    FOR i = 0 TO p-1
+        start = i * (n / p)
+        size = IF i = p-1 THEN n - start ELSE n / p
+        FOR j = 0 TO size-1
+            elem = arr[start + j]
+            bucket = 0
+            WHILE bucket < d_sqrt - 1 AND elem > pivots[bucket]
+                bucket = bucket + 1
+            END WHILE
+            counts[i * d_sqrt + bucket] = counts[i * d_sqrt + bucket] + 1
+        END FOR
+    END FOR
+
+    // Compute prefix sums for bucket sizes
+    prefix_sums = ARRAY of size d_sqrt, initialized to 0
+    FOR j = 0 TO d_sqrt-1
+        FOR i = 0 TO p-1
+            prefix_sums[j] = prefix_sums[j] + counts[i * d_sqrt + j]
+        END FOR
+    END FOR
+
+    // Initialize buckets
+    buckets = ARRAY of d_sqrt arrays
+    bucket_sizes = prefix_sums
+    FOR j = 0 TO d_sqrt-1
+        buckets[j] = ARRAY of size prefix_sums[j]
+    END FOR
+
+    // Distribute elements to buckets
+    offsets = ARRAY of size d_sqrt, initialized to 0
+    FOR i = 0 TO p-1
+        start = i * (n / p)
+        size = IF i = p-1 THEN n - start ELSE n / p
+        FOR j = 0 TO size-1
+            elem = arr[start + j]
+            bucket = 0
+            WHILE bucket < d_sqrt - 1 AND elem > pivots[bucket]
+                bucket = bucket + 1
+            END WHILE
+            buckets[bucket][offsets[bucket]] = elem
+            offsets[bucket] = offsets[bucket] + 1
+        END FOR
+    END FOR
+
+    RETURN buckets, bucket_sizes
+END FUNCTION
+
+// Main PEMDISTSORT function
+FUNCTION pem_dist_sort(arr, n, p, m, b, d)
+    IF n <= m THEN
+        quicksort(arr, 0, n-1)
+        RETURN
+    END IF
+
+    d_sqrt = FLOOR(SQRT(d))
+    segment_size = n / p
+
+    // Print segments
+    PRINT "Segments:"
+    FOR i = 0 TO p-1
+        size = IF i = p-1 THEN n - i * segment_size ELSE segment_size
+        PRINT "Segment ", i, ": ", arr[i * segment_size .. i * segment_size + size - 1]
+    END FOR
+
+    // Select pivots
+    pivots = ARRAY of size d_sqrt - 1
+    FOR j = 0 TO d_sqrt - 2
+        pivots[j] = pem_select(arr, n, (j + 1) * n / d_sqrt)
+    END FOR
+    PRINT "Pivots: ", pivots[0 .. d_sqrt - 2]
+
+    // Partition into buckets
+    buckets, bucket_sizes = pem_multipartition(arr, n, pivots, d_sqrt, p)
+
+    // Print buckets
+    PRINT "Buckets:"
+    FOR j = 0 TO d_sqrt - 1
+        PRINT "Bucket ", j, ": ", buckets[j][0 .. bucket_sizes[j] - 1]
+    END FOR
+
+    // Recursively sort buckets
+    output = ARRAY of size n
+    output_pos = 0
+    FOR j = 0 TO d_sqrt - 1
+        processors = CEIL(bucket_sizes[j] / (n / p))
+        pem_dist_sort(buckets[j], bucket_sizes[j], processors, m, b, d)
+        FOR k = 0 TO bucket_sizes[j] - 1
+            output[output_pos] = buckets[j][k]
+            output_pos = output_pos + 1
+        END FOR
+    END FOR
+
+    // Copy output back to arr
+    FOR i = 0 TO n - 1
+        arr[i] = output[i]
+    END FOR
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    arr = [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13]
+    n = 16
+    p = 4  // Number of processors
+    m = 8  // Cache size (elements)
+    b = 2  // Block size (elements)
+    d = 4  // Number of buckets
+
+    PRINT "Initial array: ", arr[0 .. n - 1]
+
+    pem_dist_sort(arr, n, p, m, b, d)
+
+    PRINT "Sorted array: ", arr[0 .. n - 1]
+END MAIN
+
+
+
+
+## Notes on Pseudocode
+
+Purpose: Sorts an array of $ N $ elements in the PEM model using $ P $ processors, optimizing I/O complexity to $ O\left(\frac{N}{PB}\log_{M/B}\frac{N}{B}\right) $ under constraints $ P \leq \frac{N}{B^2} $, $ M = B^{O(1)} $.
+Algorithm Details:
+
+Partitioning: Divides the array into $ P $ segments of size $ \lceil N/P \rceil $, each handled by one processor.
+Pivot Selection: Selects $ \sqrt{d} - 1 $ pivots using $ \texttt{PEMSELECT} $, approximated here with a simple sort for small arrays.
+Prefix Sum: Computes bucket sizes by counting elements per segment and summing across processors.
+Multiway Partitioning: Uses $ \texttt{PEMMULTIPARTITION} $ to distribute elements into $ \sqrt{d} $ buckets based on pivots.
+Recursive Sorting: Recursively sorts each bucket with $ O\left(\left\lceil \frac{B[j]}{N/P} \right\rceil\right) $ processors.
+
+
+Test Case:
+
+Input Array: $ [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13] $, $ N = 16 $.
+Parameters:
+
+$ P = 4 $: Number of processors.
+$ M = 8 $: Cache size (elements).
+$ B = 2 $: Block size (elements).
+$ d = 4 $: Number of buckets, so $ \sqrt{d} = 2 $.
+Segment size: $ N/P = 16/4 = 4 $.
+
+
+Output:
+
+Initial array: $ [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13] $.
+Segments: $ [64, 34, 25, 12] $, $ [22, 11, 90, 87] $, $ [45, 67, 23, 43] $, $ [56, 78, 91, 13] $.
+Pivots: e.g., $ [67] $ (for $ \sqrt{d} - 1 = 1 $).
+Buckets: e.g., $ [11, 12, 13, 22, 23, 25, 34, 43, 45, 56, 64, 67] $, $ [78, 87, 90, 91] $.
+Sorted array: $ [11, 12, 13, 22, 23, 25, 34, 43, 45, 56, 64, 67, 78, 87, 90, 91] $.
+
+
+
+
+Constraints:
+
+Comparison-based sorting for non-negative integers.
+Simulates PEM model in-memory (no actual disk I/O or cache management).
+Uses quicksort for recursive sorting of segments/buckets when $ n \leq M $.
+Handles CREW conflicts by serializing writes to shared memory.
+Outputs initial array, segments, pivots, buckets, and final sorted array.
+
+Parameters:
+
+$ N = 16 $: Number of elements.
+$ P = 4 $: Number of processors.
+$ M = 8 $: Cache size (elements).
+$ B = 2 $: Block size (elements).
+$ d = 4 $: Number of buckets, so $ \sqrt{d} = 2 $.
+
+
+Simplifications:
+
+Simulates parallel processing with sequential loops, as actual parallelism is platform-dependent.
+Uses a simplified $ \texttt{PEMSELECT} $ (sort-based for small arrays) instead of a full median-of-medians algorithm.
+Simulates $ \texttt{PEMMULTIPARTITION} $ with in-memory arrays, avoiding actual disk I/O.
+Assumes $ P \leq \frac{N}{B^2} = \frac{16}{4} = 4 $, $ M = B^{O(1)} = 8 $.
