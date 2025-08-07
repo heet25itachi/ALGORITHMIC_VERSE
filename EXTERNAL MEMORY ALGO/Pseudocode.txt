@@ -1,0 +1,136 @@
+// Constants
+M = 8  // Cache size (number of elements)
+B = 4  // Block size (number of elements)
+
+// Helper function: Quicksort for sorting subarrays in memory
+FUNCTION quicksort(arr, left, right)
+    IF left >= right THEN
+        RETURN
+    END IF
+    pivot = arr[right]
+    i = left
+    j = right
+    WHILE i < j
+        WHILE i < j AND arr[i] <= pivot
+            i = i + 1
+        END WHILE
+        WHILE i < j AND arr[j] > pivot
+            j = j - 1
+        END WHILE
+        IF i < j THEN
+            swap(arr[i], arr[j])
+        END IF
+    END WHILE
+    swap(arr[i], arr[right])
+    quicksort(arr, left, i - 1)
+    quicksort(arr, i + 1, right)
+END FUNCTION
+
+// Helper function: Merge two sorted runs, processing blocks of size B
+FUNCTION merge_runs(run1, run2, run_size, B)
+    output = empty array of size (2 * run_size)
+    i = 0  // Index for run1
+    j = 0  // Index for run2
+    k = 0  // Index for output
+    WHILE i < run_size AND j < run_size
+        FOR b = 1 TO B
+            IF i < run_size AND (j >= run_size OR run1[i] <= run2[j]) THEN
+                output[k] = run1[i]
+                i = i + 1
+                k = k + 1
+            ELSE IF j < run_size THEN
+                output[k] = run2[j]
+                j = j + 1
+                k = k + 1
+            END IF
+        END FOR
+    END WHILE
+    WHILE i < run_size
+        output[k] = run1[i]
+        i = i + 1
+        k = k + 1
+    END WHILE
+    WHILE j < run_size
+        output[k] = run2[j]
+        j = j + 1
+        k = k + 1
+    END WHILE
+    RETURN output
+END FUNCTION
+
+// Main sorting function
+FUNCTION external_merge_sort(arr, n, M, B)
+    IF n <= M THEN
+        quicksort(arr, 0, n - 1)
+        RETURN
+    END IF
+
+    // Step 1: Divide into runs and sort
+    num_runs = ceiling(n / M)
+    runs = empty array of arrays
+    FOR i = 0 TO num_runs - 1
+        start = i * M
+        size = IF i = num_runs - 1 AND n % M ≠ 0 THEN n % M ELSE M
+        run = subarray(arr, start, start + size - 1)
+        quicksort(run, 0, size - 1)
+        runs.append(run)
+    END FOR
+
+    // Print sorted runs
+    PRINT "Sorted runs:"
+    FOR i = 0 TO num_runs - 1
+        PRINT "Run ", i, ": ", runs[i]
+    END FOR
+
+    // Step 2: Merge runs (assuming M/B = 2, so 2-way merge)
+    output = merge_runs(runs[0], runs[1], M, B)
+
+    // Step 3: Copy output back to arr
+    FOR i = 0 TO n - 1
+        arr[i] = output[i]
+    END FOR
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    arr = [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13]
+    n = length(arr)
+    M = 8
+    B = 4
+    PRINT "Initial array: ", arr
+    external_merge_sort(arr, n, M, B)
+    PRINT "Sorted array: ", arr
+END MAIN
+
+
+
+
+## Notes on Pseudocode ##
+
+Purpose: Sorts an array of $ N $ integers in the external memory model, optimizing for I/O operations with $ O\left(\frac{N}{B}\log_{\frac{M}{B}}\frac{N}{B}\right) $ memory transfers.
+Algorithm Details:
+
+Divide and Sort: Partitions the array into $ \lceil \frac{N}{M} \rceil $ runs of size at most $ M $. Each run is read into memory, sorted using quicksort, and stored as a sorted run.
+Merge: Performs a $ \frac{M}{B} $-way merge (here, 2-way merge since $ \frac{M}{B} = \frac{8}{4} = 2 $), processing blocks of size $ B $. Reads up to $ B $ elements at a time from each run, merges them, and writes to the output.
+Output: Copies the merged result back to the input array.
+
+
+Test Case:
+
+Input: [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13].
+$ N = 16 $, $ M = 8 $, $ B = 4 $, so $ \lceil \frac{N}{M} \rceil = 2 $ runs of size 8.
+Output: [11, 12, 13, 22, 23, 25, 34, 43, 45, 56, 64, 67, 78, 87, 90, 91].
+Example Runs:
+
+Run 0: [11, 12, 22, 25, 34, 64, 87, 90]
+Run 1: [13, 23, 43, 45, 56, 67, 78, 91]
+
+
+
+
+Constraints:
+
+Assumes $ N $ is divisible by $ M $ and $ M $ by $ B $ for simplicity ($ N = 16 $, $ M = 8 $, $ B = 4 $).
+Simulates disk I/O by processing blocks of size $ B $.
+Uses quicksort for in-memory sorting, consistent with prior implementations.
+Handles non-negative integers with comparison-based sorting.
