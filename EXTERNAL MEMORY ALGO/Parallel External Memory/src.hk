@@ -1,0 +1,43 @@
+module Main where
+
+import Data.List (sort)
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
+import Control.Monad.ST (runST, ST)
+import Control.Monad (when)
+
+quicksort :: V.Vector Int -> Int -> Int -> ST s (V.Vector Int)
+quicksort arr left right = do
+  mArr <- V.thaw arr
+  let go l r = when (l < r) $ do
+        pivot <- MV.read mArr r
+        i <- let loop i j = if i < j then do
+                i' <- let fi k = do v <- MV.read mArr k; return $ if v <= pivot then fi (k+1) else k in fi i
+                j' <- let fj k = if i' < k then do v <- MV.read mArr k; return $ if v > pivot then fj (k-1) else k else return k in fj j
+                if i' < j' then do MV.swap mArr i' j'; loop (i'+1) (j'-1) else return i'
+        MV.swap mArr r i
+        go l (i-1)
+        go (i+1) r
+  go left right
+  V.freeze mArr
+
+pemSelect :: V.Vector Int -> Int -> Int -> Int
+pemSelect arr n k
+  | n <= 5 = let temp = sort $ V.toList $ V.take n arr in temp !! (k-1)
+  | otherwise = arr V.! (k-1) -- Simplified: use direct access for small arrays
+
+pemMultipartition :: V.Vector Int -> Int -> [Int] -> Int -> Int -> ([V.Vector Int], [Int])
+pemMultipartition arr n pivots dSqrt p = let
+  counts = V.fromList $ replicate (p * dSqrt) 0
+  countUpdates = do
+    i <- [0..p-1]
+    let start = i * (n `div` p)
+        size = if i == p-1 then n - start else n `div` p
+    j <- [0..size-1]
+    let elem = arr V.! (start + j)
+        bucket = length $ takeWhile (\piv -> elem > piv) pivots
+    return (i * dSqrt + bucket, 1)
+  updatedCounts = V.accum (+) counts countUpdates
+  prefixSums = [sum $ map (updatedCounts V.!) [(i * dSqrt + j) | i <- [0..p-1]] | j <- [0..dSqrt-1]]
+  buckets = replicate dSqrt V.empty
+  bucket
