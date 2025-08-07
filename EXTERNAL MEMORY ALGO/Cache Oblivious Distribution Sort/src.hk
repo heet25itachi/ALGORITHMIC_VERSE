@@ -1,0 +1,72 @@
+module Main where
+
+import Data.List (sort)
+import qualified Data.Vector as V
+import Data.Vector.Mutable (MVector)
+import qualified Data.Vector.Mutable as MV
+import Control.Monad.ST (runST, ST)
+
+data Bucket = Bucket { elements :: [Int], pivot :: Int }
+
+approximateMedian :: [Int] -> Int
+approximateMedian arr
+  | null arr = 0
+  | otherwise = let mid = length arr `div` 2
+                    values = [head arr, arr !! mid, last arr]
+                in sort values !! 1
+
+quicksort :: MVector s Int -> Int -> Int -> ST s ()
+quicksort arr left right
+  | left >= right = return ()
+  | otherwise = do
+      let pivot = MV.unsafeRead arr right
+      i <- partition arr left right pivot
+      MV.unsafeSwap arr i right
+      quicksort arr left (i - 1)
+      quicksort arr (i + 1) right
+  where
+    partition arr i j pivot = do
+      i' <- findLeft arr i j pivot
+      j' <- findRight arr i' j pivot
+      if i' < j'
+        then do
+          MV.unsafeSwap arr i' j'
+          partition arr i' j' pivot
+        else return i'
+    findLeft arr i j pivot = do
+      x <- MV.unsafeRead arr i
+      if i < j && x <= pivot
+        then findLeft arr (i + 1) j pivot
+        else return i
+    findRight arr i j pivot = do
+      x <- MV.unsafeRead arr j
+      if i < j && x > pivot
+        then findRight arr i (j - 1) pivot
+        else return j
+
+copyElems :: V.Vector Int -> MVector s Int -> MVector s Int -> [Bucket] -> Int -> Int -> Int -> ST s ([Bucket], Int)
+copyElems arr next bnum buckets subarraySize bucketIdx sqrtN = do
+  nextVal <- MV.read next bucketIdx
+  if nextVal >= subarraySize
+    then return (buckets, length buckets)
+    else do
+      let bnumVal = bnum V.! bucketIdx
+      buckets' <- if bnumVal >= length buckets
+        then return (buckets ++ [Bucket [] 1000000000])
+        else return buckets
+      let bucket = buckets' !! bnumVal
+      x <- MV.read arr (nextVal + bucketIdx * sqrtN)
+      if x <= pivot bucket
+        then do
+          let newElements = elements bucket ++ [x]
+          if length newElements >= 2 * sqrtN
+            then do
+              let median = approximateMedian (elements bucket)
+              let (newElems, newBucketElems) = partition (<= median) (elements bucket)
+              let newBuckets = take bnumVal buckets' ++ [Bucket newElems median] ++ [Bucket newBucketElems (pivot bucket)] ++ drop (bnumVal + 1) buckets'
+              MV.modify bnum (\b -> if b > bnumVal then b + 1 else b) bucketIdx
+              MV.modify next (+1) bucketIdx
+              copyElems arr next bnum newBuckets subarraySize bucketIdx sqrtN
+            else do
+              MV.modify next (+1) bucketIdx
+              copyElems arr next bnum (
