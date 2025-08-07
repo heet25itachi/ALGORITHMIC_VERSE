@@ -1,0 +1,18 @@
+## References for Cache-Oblivious Distribution Sort Pseudocode ##
+
+1. Wikipedia Article: Cache-oblivious distribution sort
+
+URL: https://en.wikipedia.org/wiki/Cache-oblivious_distribution_sort
+Description: The primary source for the cache-oblivious distribution sort algorithm, detailing its approach to sorting $ N $ elements in a cache-oblivious manner, achieving $ O\left(\frac{N}{L}\log_Z N\right) $ memory transfers under the tall cache assumption ($ Z = \Omega(L^2) $) and $ \Theta(N \log N) $ runtime. It describes the four main steps: (1) partitioning the array into $ \sqrt{N} $ subarrays of size $ \sqrt{N} $, recursively sorting them; (2) distributing elements into $ q \leq \sqrt{N} $ buckets of size at most $ 2\sqrt{N} $, maintaining that elements in $ B_i $ are not larger than those in $ B_{i+1} $; (3) recursively sorting buckets; and (4) concatenating buckets. The distribution step uses a recursive divide-and-conquer approach via the distribute(i, j, m) function, with invariants for bucket size and ordering. The pseudocode implements this logic, using a simplified median-finding algorithm (median of first, middle, last elements) for bucket splitting, and matches the test case and output format from the prior artifact (artifact_id: e01be995-2e7a-499e-aca1-a121878bc4a4). The article includes pseudocode for the distribute function, which the provided pseudocode directly adapts, ensuring cache-obliviousness through recursive division.
+
+
+2. Frigo, M., Leiserson, C. E., Prokop, H., & Ramachandran, S. (1999). Cache-Oblivious Algorithms. In Proceedings of the 40th Annual Symposium on Foundations of Computer Science (FOCS), 285–297.
+
+Citation: Referenced indirectly through the Wikipedia article’s context on cache-oblivious algorithms.
+Description: This seminal paper introduces the concept of cache-oblivious algorithms, which optimize memory transfers without requiring knowledge of cache parameters. It provides the theoretical foundation for the cache-oblivious distribution sort, particularly the recursive divide-and-conquer strategy to ensure subproblems fit into cache. The pseudocode incorporates this principle by recursively partitioning the array and distributing elements, aligning with the Wikipedia description and ensuring the $ O\left(\frac{N}{L}\log_Z N\right) $ memory transfer complexity under the tall cache assumption.
+
+
+3. GeeksforGeeks: Cache-Oblivious Algorithms (General Reference)
+
+URL: https://www.geeksforgeeks.org/cache-oblivious-algorithm/
+Description: A supplementary source that explains cache-oblivious algorithms, including their application to sorting. While it does not specifically cover the distribution sort, it clarifies the principles of cache-obliviousness, such as recursive division to minimize cache misses. The pseudocode adopts these principles, particularly in the distribute function’s recursive calls, which ensure cache-efficient memory access patterns. The source also provides context for implementing sorting algorithms in a cache-oblivious manner, supporting the pseudocode’s design.
