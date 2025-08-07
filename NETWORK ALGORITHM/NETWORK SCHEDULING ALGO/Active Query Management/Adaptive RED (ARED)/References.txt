@@ -1,0 +1,6 @@
+## References ##
+
+1. Floyd, S., Gummadi, R., & Shenker, S. (2001). Adaptive RED: An Algorithm for Increasing the Robustness of RED’s Active Queue Management. AT&T Center for Internet Research at ICSI.
+
+2. Wikipedia contributors. (2025). Active Queue Management. Retrieved August 7, 2025, from https://en.wikipedia.org/wiki/Active_queue_management.
+ 
