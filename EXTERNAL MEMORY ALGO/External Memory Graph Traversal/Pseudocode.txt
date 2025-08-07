@@ -1,0 +1,183 @@
+// Constants
+n = 10  // Number of vertices
+M = 5   // Internal memory size (vertices)
+B = 2   // Block size (vertices/edges)
+D = 1   // Number of parallel disks
+
+// Helper function: Remove duplicates from a multiset
+FUNCTION remove_duplicates(arr, size)
+    sort(arr, 0, size - 1)  // Sort the array
+    k = 1
+    FOR i = 1 TO size - 1
+        IF arr[i] != arr[k - 1] THEN
+            arr[k] = arr[i]
+            k = k + 1
+        END IF
+    END FOR
+    RETURN arr, k
+END FUNCTION
+
+// Helper function: Compute set difference A \ B
+FUNCTION set_difference(a, na, b, nb, c)
+    nc = 0
+    i = 0
+    j = 0
+    WHILE i < na
+        IF j < nb AND a[i] = b[j] THEN
+            i = i + 1
+            j = j + 1
+        ELSE
+            c[nc] = a[i]
+            nc = nc + 1
+            i = i + 1
+        END IF
+    END WHILE
+    RETURN c, nc
+END FUNCTION
+
+// Main BFS function
+FUNCTION external_bfs(adj, n, start, M, B, D)
+    visited = array of size n, initialized to false
+    level = array of size M
+    prev_level = array of size M
+    prev_prev_level = array of size M
+    neighbors = array of size n
+    level_size = 0
+    prev_level_size = 0
+    prev_prev_level_size = 0
+    t = 0
+
+    // Initialize L(0) = {start}
+    level[0] = start
+    level_size = 1
+    visited[start] = true
+    PRINT "Level ", t, ": ", start
+
+    WHILE level_size > 0
+        // Step 1: Compute A(t) = neighbors of L(t-1)
+        neighbor_size = 0
+        FOR i = 0 TO level_size - 1
+            v = level[i]
+            FOR EACH u IN adj[v]  // Access adjacency list in blocks of size B
+                neighbors[neighbor_size] = u
+                neighbor_size = neighbor_size + 1
+            END FOR
+        END FOR
+
+        // Step 2: Compute A'(t) by removing duplicates
+        neighbors, neighbor_size = remove_duplicates(neighbors, neighbor_size)
+
+        // Step 3: Compute L(t) = A'(t) \ (L(t-1) \cup L(t-2))
+        temp = array of size n
+        temp_size = 0
+        FOR i = 0 TO prev_level_size - 1
+            temp[temp_size] = prev_level[i]
+            temp_size = temp_size + 1
+        END FOR
+        FOR i = 0 TO prev_prev_level_size - 1
+            temp[temp_size] = prev_prev_level[i]
+            temp_size = temp_size + 1
+        END FOR
+        temp, temp_size = remove_duplicates(temp, temp_size)
+
+        new_level = array of size n
+        new_level_size = 0
+        new_level, new_level_size = set_difference(neighbors, neighbor_size, temp, temp_size, new_level)
+
+        // Update visited
+        FOR i = 0 TO new_level_size - 1
+            visited[new_level[i]] = true
+        END FOR
+
+        // Print current level
+        IF new_level_size > 0 THEN
+            PRINT "Level ", t + 1, ": ", new_level[0 .. new_level_size - 1]
+        END IF
+
+        // Update levels
+        prev_prev_level_size = prev_level_size
+        FOR i = 0 TO prev_level_size - 1
+            prev_prev_level[i] = prev_level[i]
+        END FOR
+        prev_level_size = level_size
+        FOR i = 0 TO level_size - 1
+            prev_level[i] = level[i]
+        END FOR
+        level_size = new_level_size
+        FOR i = 0 TO new_level_size - 1
+            level[i] = new_level[i]
+        END FOR
+        t = t + 1
+    END WHILE
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    n = 10
+    adj = array of lists for vertices 0 to n-1
+    edges = [(0,1), (0,3), (0,9), (1,0), (1,2), (1,4), (2,1), (2,3),
+             (3,0), (3,2), (3,4), (4,1), (4,3), (4,5), (5,4), (5,6),
+             (5,8), (6,5), (6,7), (7,6), (7,8), (8,5), (8,7), (8,9),
+             (9,0), (9,8)]  // m = 13 edges
+    FOR EACH (u, v) IN edges
+        adj[u].append(v)
+    END FOR
+
+    PRINT "Adjacency lists:"
+    FOR i = 0 TO n - 1
+        PRINT i, ": ", adj[i]
+    END FOR
+
+    M = 5
+    B = 2
+    D = 1
+    external_bfs(adj, n, 0, M, B, D)
+END MAIN
+
+
+
+
+## Notes on Pseudocode ##
+
+Purpose: Performs BFS on an undirected graph in the external memory model, optimizing for I/O operations with complexity $ O(n + \text{sort}(n+m)) $.
+Algorithm Details:
+
+Compute Neighbors: Constructs $ A(t) = N(L(t-1)) $, the multiset of neighbors of nodes in $ L(t-1) $, by accessing adjacency lists in blocks of size $ B $, requiring $ O(|L(t-1)| + |A(t)|/(D \cdot B)) $ I/Os.
+Remove Duplicates: Sorts $ A(t) $ and removes duplicates to form $ A'(t) $, requiring $ O(\text{sort}(|A(t)|)) $ I/Os.
+Exclude Visited Nodes: Computes $ L(t) = A'(t) \setminus (L(t-1) \cup L(t-2)) $ via a parallel scan, requiring $ O((|A(t)| + |L(t-1)| + |L(t-2)|)/(D \cdot B)) $ I/Os.
+Iteration: Continues until no new nodes are found.
+
+
+Test Case:
+
+Graph: Undirected with $ n = 10 $ vertices (0 to 9), $ m = 13 $ edges: (0,1), (0,3), (0,9), (1,0), (1,2), (1,4), (2,1), (2,3), (3,0), (3,2), (3,4), (4,1), (4,3), (4,5), (5,4), (5,6), (5,8), (6,5), (6,7), (7,6), (7,8), (8,5), (8,7), (8,9), (9,0), (9,8).
+Output: BFS levels from vertex 0, e.g., $ L(0) = \{0\} $, $ L(1) = \{1, 3, 9\} $, $ L(2) = \{2, 4, 8\} $, $ L(3) = \{5, 7\} $, $ L(4) = \{6\} $.
+Adjacency Lists:
+
+0: 1 3 9
+1: 0 2 4
+2: 1 3
+3: 0 2 4
+4: 1 3 5
+5: 4 6 8
+6: 5 7
+7: 6 8
+8: 5 7 9
+9: 0 8
+
+
+
+
+Parameters:
+
+$ M = 5 $: Internal memory size (vertices).
+$ B = 2 $: Block size (vertices/edges).
+$ D = 1 $: Single disk, simplifying I/O to $ O(n + \text{sort}(n+m)) $.
+
+
+Constraints:
+
+Assumes undirected graph with adjacency lists accessible in blocks of size $ B $.
+Simulates disk I/O with in-memory arrays (no actual disk operations).
+Uses in-memory sorting for duplicate removal (simulating external sorting).
+Outputs BFS levels, consistent with prior artifact’s style.
