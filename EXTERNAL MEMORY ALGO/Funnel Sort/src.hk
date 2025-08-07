@@ -1,0 +1,71 @@
+module Main where
+
+import Data.List (splitAt)
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
+import Control.Monad.ST (runST, ST)
+import Control.Monad (when)
+
+quicksort :: V.Vector Int -> Int -> Int -> ST s (V.Vector Int)
+quicksort arr left right = do
+  mArr <- V.thaw arr
+  let go l r = when (l < r) $ do
+        pivot <- MV.read mArr r
+        i <- let loop i j = if i < j then do
+                i' <- let fi k = do v <- MV.read mArr k; return $ if v <= pivot then fi (k+1) else k in fi i
+                j' <- let fj k = if i' < k then do v <- MV.read mArr k; return $ if v > pivot then fj (k-1) else k else return k in fj j
+                if i' < j' then do MV.swap mArr i' j'; loop (i'+1) (j'-1) else return i'
+        MV.swap mArr r i
+        go l (i-1)
+        go (i+1) r
+  go left right
+  V.freeze mArr
+
+kMerger :: [V.Vector Int] -> [Int] -> Int -> V.Vector Int -> Int -> Int -> ([V.Vector Int], [Int], V.Vector Int)
+kMerger inputs inputSizes k buffer bufferSize k3
+  | k == 1 = let size = min (head inputSizes) k3
+                 output = V.take size (head inputs)
+                 newInputs = [V.drop size (head inputs)] ++ tail inputs
+                 newSizes = (head inputSizes - size) : tail inputSizes
+             in (newInputs, newSizes, output)
+  | otherwise = let sqrtK = floor $ sqrt $ fromIntegral k
+                    inputMergers = [inputs !! (i * sqrtK) | i <- [0..sqrtK-1]]
+                    inputMergerSizes = [inputSizes !! (i * sqrtK) | i <- [0..sqrtK-1]]
+                    k32 = floor $ fromIntegral k ** 1.5
+                    (newMergers, newMergerSizes, subBuffers, subBufferSizes) = foldl (\(ms, ss, bs, bss) i ->
+                      if bsss !! i < k32 then
+                        let (ms', ss', out) = kMerger ms ss sqrtK (bs !! i) bufferSize k32
+                            newBs = take i bs ++ [V.concat [out, bs !! i]] ++ drop (i+1) bs
+                            newBss = take i bss ++ [V.length out] ++ drop (i+1) bss
+                        in (ms', ss', newBs, newBss)
+                      else (ms, ss, bs, bss)
+                      ) (inputMergers, inputMergerSizes, replicate sqrtK V.empty, replicate sqrtK 0) [0..sqrtK-1]
+                    (finalInputs, finalSizes, output) = kMerger subBuffers subBufferSizes sqrtK buffer bufferSize k3
+                    newBuffers = map (V.drop (V.length output)) subBuffers
+                    newBufferSizes = map (subtract (V.length output)) subBufferSizes
+                in (newMergers, newMergerSizes, output)
+
+funnelsort :: V.Vector Int -> Int -> Int -> V.Vector Int
+funnelsort arr z l = runST $ do
+  let n = V.length arr
+  if n <= z then quicksort arr 0 (n-1) else do
+    let k = ceiling $ fromIntegral n ** (1/3)
+        subSize = ceiling $ fromIntegral n / fromIntegral k
+        subarrays = [V.slice (i * subSize) (if i == k-1 then n - i * subSize else subSize) arr | i <- [0..k-1]]
+        subarraySizes = [if i == k-1 then n - i * subSize else subSize | i <- [0..k-1]]
+    sortedSubarrays <- mapM (\sub -> quicksort sub 0 (V.length sub - 1)) subarrays
+    putStrLn "Sorted subarrays:"
+    mapM_ (\(i, sub) -> putStrLn $ "Subarray " ++ show i ++ ": " ++ unwords (map show $ V.toList sub)) (zip [0..] sortedSubarrays)
+    let bufferSize = 2 * floor (fromIntegral k ** 1.5)
+        buffer = V.replicate bufferSize 0
+    let (_, _, output) = kMerger sortedSubarrays subarraySizes k buffer bufferSize n
+    return output
+
+main :: IO ()
+main = do
+  let arr = V.fromList [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13]
+      z = 8
+      l = 2
+  putStrLn $ "Initial array: " ++ unwords (map show $ V.toList arr)
+  let sorted = funnelsort arr z l
+  putStrLn $ "Sorted array: " ++ unwords (map show $ V.toList sorted)
