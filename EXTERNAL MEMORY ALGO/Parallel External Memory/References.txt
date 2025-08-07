@@ -1,0 +1,24 @@
+## References ##
+
+1. Wikipedia Article: Parallel External Memory
+
+URL: https://en.wikipedia.org/wiki/Parallel_external_memory
+Description: The primary source for the PEM model and PEMDISTSORT algorithm, describing the model’s structure with $ P $ processors, private caches of size $ M $, blocks of size $ B $, and shared main memory of size $ N $. It details PEMDISTSORT’s multiway partitioning, pivot selection, and I/O complexity $ O\left(\frac{N}{PB}\log_{M/B}\frac{N}{B}\right) $ under constraints $ P \leq \frac{N}{B^2} $, $ M = B^{O(1)} $. The pseudocode implements this approach, using $ N = 16 $, $ P = 4 $, $ M = 8 $, $ B = 2 $, $ d = 4 $, and the test array from the prior artifact.
+
+
+2. Arge, L., Goodrich, M. T., Nelson, M., & Sitchinava, N. (2008). Fundamental parallel algorithms for private-cache chip multiprocessors. Proceedings of the Twentieth Annual Symposium on Parallelism in Algorithms and Architectures (SPAA ’08), 197–206.
+
+Citation: Cited in the Wikipedia article (Reference [0]).
+DOI: 10.1145/1378533.1378573
+ISBN: 9781595939739
+S2CID: 11067041
+Description: Introduces the PEM model and the PEMDISTSORT algorithm, detailing the multiway partitioning approach, pivot selection via $ \texttt{PEMSELECT} $, and prefix sum computation. The pseudocode follows this structure, using in-memory simulation of parallel block transfers and CREW conflict handling.
+
+
+3. Arge, L., Goodrich, M. T., & Sitchinava, N. (2010). Parallel external memory graph algorithms. 2010 IEEE International Symposium on Parallel & Distributed Processing (IPDPS), 1–11.
+
+Citation: Cited in the Wikipedia article (Reference [1]).
+DOI: 10.1109/ipdps.2010.5470440
+ISBN: 9781424464425
+S2CID: 587572
+Description: Discusses additional PEM algorithms (e.g., List Ranking, Euler Tour, MST), which are not implemented here but provide context for the PEM model’s applications. The pseudocode focuses on PEMDISTSORT, as it is the primary example in the document’s “Multiway partitioning” section.
