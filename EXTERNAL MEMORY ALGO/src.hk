@@ -1,0 +1,72 @@
+module Main where
+
+import Data.List (sort)
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
+import Control.Monad.ST (runST, ST)
+
+quicksort :: MV.MVector s Int -> Int -> Int -> ST s ()
+quicksort arr left right
+  | left >= right = return ()
+  | otherwise = do
+      let pivot = MV.unsafeRead arr right
+      i <- partition arr left right pivot
+      MV.unsafeSwap arr i right
+      quicksort arr left (i - 1)
+      quicksort arr (i + 1) right
+  where
+    partition arr i j pivot = do
+      i' <- findLeft arr i j pivot
+      j' <- findRight arr i' j pivot
+      if i' < j'
+        then do
+          MV.unsafeSwap arr i' j'
+          partition arr i' j' pivot
+        else return i'
+    findLeft arr i j pivot = do
+      x <- MV.unsafeRead arr i
+      if i < j && x <= pivot
+        then findLeft arr (i + 1) j pivot
+        else return i
+    findRight arr i j pivot = do
+      x <- MV.unsafeRead arr j
+      if i < j && x > pivot
+        then findRight arr i (j - 1) pivot
+        else return j
+
+mergeRuns :: [Int] -> [Int] -> Int -> [Int]
+mergeRuns run1 run2 b = go run1 run2 [] 0
+  where
+    go xs ys acc count
+      | null xs && null ys = acc
+      | count < b && not (null xs) && (null ys || head xs <= head ys) =
+          go (tail xs) ys (acc ++ [head xs]) (count + 1)
+      | count < b && not (null ys) =
+          go xs (tail ys) (acc ++ [head ys]) (count + 1)
+      | otherwise = go xs ys (acc ++ take b (merge xs ys)) 0
+    merge xs [] = xs
+    merge [] ys = ys
+    merge (x:xs) (y:ys)
+      | x <= y = x : merge xs (y:ys)
+      | otherwise = y : merge (x:xs) ys
+
+externalMergeSort :: [Int] -> Int -> Int -> [Int]
+externalMergeSort arr m b
+  | n <= m = sort arr
+  | otherwise = let
+      runs = [ sort (take m (drop i arr)) | i <- [0, m .. n-1] ]
+      output = mergeRuns (runs !! 0) (runs !! 1) b
+      in output
+  where n = length arr
+
+main :: IO ()
+main = do
+  let arr = [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13]
+      m = 8
+      b = 4
+  putStrLn $ "Initial array: " ++ show arr
+  let runs = [ take m (drop i arr) | i <- [0, m .. length arr - 1] ]
+  putStrLn "Sorted runs:"
+  mapM_ (\(i, run) -> putStrLn $ "Run " ++ show i ++ ": " ++ show (sort run)) (zip [0..] runs)
+  let sorted = externalMergeSort arr m b
+  putStrLn $ "Sorted array: " ++ show sorted
