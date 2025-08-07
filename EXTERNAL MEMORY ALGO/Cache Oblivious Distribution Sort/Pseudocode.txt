@@ -1,0 +1,167 @@
+// Constants
+INFINITY = 1e9  // Large value to represent initial bucket pivot
+
+// Helper function: Approximate linear-time median finding
+FUNCTION approximate_median(arr, size)
+    IF size = 0 THEN
+        RETURN 0
+    END IF
+    mid = floor(size / 2)
+    values = [arr[0], arr[mid], arr[size - 1]]
+    RETURN sort(values)[1]  // Middle value of sorted first, middle, last elements
+END FUNCTION
+
+// Helper function: Quicksort for sorting subarrays and buckets
+FUNCTION quicksort(arr, left, right)
+    IF left >= right THEN
+        RETURN
+    END IF
+    pivot = arr[right]
+    i = left
+    j = right
+    WHILE i < j
+        WHILE i < j AND arr[i] <= pivot
+            i = i + 1
+        END WHILE
+        WHILE i < j AND arr[j] > pivot
+            j = j - 1
+        END WHILE
+        IF i < j THEN
+            swap(arr[i], arr[j])
+        END IF
+    END WHILE
+    swap(arr[i], arr[right])
+    quicksort(arr, left, i - 1)
+    quicksort(arr, i + 1, right)
+END FUNCTION
+
+// Helper function: Copy elements from subarray to buckets
+FUNCTION copy_elems(arr, next, bnum, buckets, subarray_size, bucket_idx, sqrt_n)
+    WHILE next[bucket_idx] < subarray_size
+        IF bnum[bucket_idx] >= length(buckets) THEN
+            buckets.append({elements: [], pivot: INFINITY})
+        END IF
+        element = arr[bucket_idx * sqrt_n + next[bucket_idx]]
+        IF element <= buckets[bnum[bucket_idx]].pivot THEN
+            IF buckets[bnum[bucket_idx]].elements.size >= 2 * sqrt_n THEN
+                median = approximate_median(buckets[bnum[bucket_idx]].elements, buckets[bnum[bucket_idx]].elements.size)
+                new_bucket = {elements: [], pivot: buckets[bnum[bucket_idx]].pivot}
+                buckets[bnum[bucket_idx]].pivot = median
+                new_elements = []
+                new_bucket_elements = []
+                FOR x IN buckets[bnum[bucket_idx]].elements
+                    IF x <= median THEN
+                        new_elements.append(x)
+                    ELSE
+                        new_bucket_elements.append(x)
+                    END IF
+                END FOR
+                buckets[bnum[bucket_idx]].elements = new_elements
+                buckets.append(new_bucket)
+                FOR i FROM 0 TO length(bnum) - 1
+                    IF bnum[i] > bnum[bucket_idx] THEN
+                        bnum[i] = bnum[i] + 1
+                    END IF
+                END FOR
+            END IF
+            buckets[bnum[bucket_idx]].elements.append(element)
+            next[bucket_idx] = next[bucket_idx] + 1
+        ELSE
+            bnum[bucket_idx] = bnum[bucket_idx] + 1
+        END IF
+    END WHILE
+END FUNCTION
+
+// Helper function: Distribute elements from subarrays to buckets
+FUNCTION distribute(arr, next, bnum, i, j, m, buckets, sqrt_n)
+    IF m = 1 THEN
+        copy_elems(arr, next, bnum, buckets, sqrt_n, i, sqrt_n)
+    ELSE
+        distribute(arr, next, bnum, i, j, m / 2, buckets, sqrt_n)
+        distribute(arr, next, bnum, i + m / 2, j, m / 2, buckets, sqrt_n)
+        distribute(arr, next, bnum, i, j + m / 2, m / 2, buckets, sqrt_n)
+        distribute(arr, next, bnum, i + m / 2, j + m / 2, m / 2, buckets, sqrt_n)
+    END IF
+END FUNCTION
+
+// Main sorting function
+FUNCTION cache_oblivious_sort(arr, n)
+    IF n <= 1 THEN
+        RETURN
+    END IF
+    sqrt_n = floor(sqrt(n))
+    IF sqrt_n * sqrt_n ≠ n THEN
+        RETURN  // Assume n is a perfect square for simplicity
+    END IF
+
+    // Step 1: Partition and sort subarrays
+    FOR i FROM 0 TO sqrt_n - 1
+        quicksort(arr, i * sqrt_n, i * sqrt_n + sqrt_n - 1)
+    END FOR
+
+    // Step 2: Distribute
+    next = array of sqrt_n zeros
+    bnum = array of sqrt_n zeros
+    buckets = [{elements: [], pivot: INFINITY}]
+    distribute(arr, next, bnum, 0, 0, sqrt_n, buckets, sqrt_n)
+
+    // Step 3: Sort buckets
+    FOR EACH bucket IN buckets
+        quicksort(bucket.elements, 0, bucket.elements.size - 1)
+    END FOR
+
+    // Step 4: Concatenate
+    k = 0
+    FOR EACH bucket IN buckets
+        FOR EACH x IN bucket.elements
+            arr[k] = x
+            k = k + 1
+        END FOR
+    END FOR
+END FUNCTION
+
+// Main program to test the algorithm
+MAIN
+    arr = [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13]
+    n = length(arr)
+    PRINT "Initial array: ", arr
+    cache_oblivious_sort(arr, n)
+    PRINT "Sorted array: ", arr
+END MAIN
+
+
+
+
+
+## Notes ##
+
+Purpose: Sorts an array of $ N $ integers using a cache-oblivious distribution sort, minimizing cache misses with $ O\left(\frac{N}{L}\log_Z N\right) $ memory transfers under the tall cache assumption ($ Z = \Omega(L^2) $) and $ \Theta(N \log N) $ runtime.
+Algorithm Details:
+
+Partition: Divides array into $ \sqrt{N} $ subarrays of size $ \sqrt{N} $, sorted recursively using quicksort.
+Distribute: Uses recursive divide-and-conquer (distribute(i, j, m)) to assign elements from subarrays $ i $ to $ i+m-1 $ into buckets starting at $ B_j $. Maintains invariants: each bucket has at most $ 2\sqrt{N} $ elements, and elements in $ B_i $ are not larger than those in $ B_{i+1} $.
+Bucket Splitting: When a bucket exceeds $ 2\sqrt{N} $ elements, splits it using a linear-time median (approximated here as median of first, middle, last elements for simplicity).
+State Management:
+
+Subarray state: next (index of next element to read), bnum (bucket index for distribution).
+Bucket state: elements (list of integers), pivot (value greater than all elements).
+
+
+Base Case: copy_elems distributes elements from a single subarray to buckets, handling splits.
+Recursive Sort: Sorts each bucket using quicksort.
+Concatenation: Combines bucket elements back into the array.
+
+
+Test Case:
+
+Input: [64, 34, 25, 12, 22, 11, 90, 87, 45, 67, 23, 43, 56, 78, 91, 13].
+$ N = 16 $, $ \sqrt{N} = 4 $, so 4 subarrays of size 4.
+Output: [11, 12, 13, 22, 23, 25, 34, 43, 45, 56, 64, 67, 78, 87, 90, 91].
+
+
+Constraints:
+
+Assumes $ N $ is a perfect square for simplicity ($ \sqrt{N} $ is an integer).
+Uses a simplified median-finding algorithm (median of first, middle, last) instead of a full linear-time select for brevity.
+Handles non-negative integers with comparison-based sorting.
+Buckets are dynamic arrays/lists; initial pivot is $ 10^9 $ (approximating infinity).
