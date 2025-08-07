@@ -1,0 +1,31 @@
+## References ##
+
+1. Wikipedia Article: External memory graph traversal
+
+URL: https://en.wikipedia.org/wiki/External_memory_graph_traversal
+Description: The primary source for the Munagala and Ranade BFS algorithm, describing the external memory model with parameters $ M $, $ B $, and $ D $. It outlines the three-step process: computing neighbors $ A(t) $, removing duplicates to form $ A'(t) $, and excluding visited nodes to form $ L(t) $. The pseudocode implements this approach, using $ M = 5 $, $ B = 2 $, $ D = 1 $, and the test graph with $ n = 10 $, $ m = 13 $. The article specifies the I/O complexity as $ O(n + \text{sort}(n+m)) $, which the pseudocode optimizes by simulating block-based access and sorting.
+
+
+2. Aggarwal, A., & Vitter, J. S. (1988). The input/output complexity of sorting and related problems. Communications of the ACM, 31(9), 1116–1127.
+
+Citation: Cited in the Wikipedia article (Reference [0]).
+DOI: 10.1145/48529.48535
+Description: Introduces the external memory model used for analyzing the BFS algorithm, defining I/O complexity based on block transfers of size $ B $, internal memory size $ M $, and number of disks $ D $. The pseudocode follows this model by accessing adjacency lists in blocks and simulating external sorting for duplicate removal, aligning with the model’s focus on minimizing I/O operations.
+
+
+3. Munagala, K., & Ranade, A. (1999). I/O-complexity of Graph Algorithms. Proceedings of the Tenth Annual ACM-SIAM Symposium on Discrete Algorithms (SODA ’99), 687–694.
+
+Citation: Cited in the Wikipedia article (Reference [1]).
+Description: Presents the external memory BFS algorithm implemented in the pseudocode, detailing the three steps: neighbor collection, duplicate removal via sorting, and exclusion of visited nodes. The pseudocode directly follows this approach, achieving $ O(n + \text{sort}(n+m)) $ I/Os by simulating block-based access ($ B = 2 $) and sorting operations. The test graph and parameters ($ M = 5 $, $ D = 1 $) are chosen to match the algorithm’s context.
+
+
+4. Mehlhorn, K., & Meyer, U. (2002). External-Memory Breadth-First Search with Sublinear I/O. Algorithms – ESA 2002, 723–735.
+
+Citation: Cited in the Wikipedia article (Reference [2]).
+Description: Describes an optimized BFS algorithm improving on Munagala and Ranade, but the pseudocode focuses on the latter for simplicity, as it is the primary BFS algorithm in the document. This reference provides context for the external memory model and the importance of sorting and scanning operations, which are reflected in the pseudocode’s remove_duplicates and set_difference functions.
+
+
+5. Buchsbaum, A. L., Goldwasser, M., Venkatasubramanian, M., & Westbrook, S. (2000). On External Memory Graph Traversal. Proceedings of the Eleventh Annual ACM-SIAM Symposium on Discrete Algorithms (SODA ’00), 859–860.
+
+Citation: Cited in the Wikipedia article (Reference [3]).
+Description: Presents an external memory depth-first search (DFS) algorithm, not implemented in the pseudocode, which focuses on BFS. This reference provides context for the external memory model’s application to graph traversal, supporting the pseudocode’s use of block-based access and the focus on I/O efficiency.
