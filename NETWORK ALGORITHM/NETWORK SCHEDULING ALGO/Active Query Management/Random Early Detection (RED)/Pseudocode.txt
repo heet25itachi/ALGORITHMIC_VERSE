@@ -1,0 +1,65 @@
+FUNCTION red_enqueue(queue, packet, min_th, max_th, w_q, max_p, capacity)
+    IF queue is empty THEN
+        avg = 0
+    ELSE
+        avg = (1 - w_q) * avg + w_q * queue.length
+    END IF
+    IF avg < min_th THEN
+        drop = false
+    ELSE IF avg >= max_th THEN
+        drop = true
+    ELSE
+        pb = max_p * (avg - min_th) / (max_th - min_th)
+        pa = pb / (1 - count * pb)
+        IF random(0, 1) < pa THEN
+            drop = true
+        ELSE
+            drop = false
+        END IF
+        count = count + 1
+    END IF
+    IF drop THEN
+        PRINT "Packet dropped, size: ", packet.size, ", avg queue length: ", avg, ", max_p: ", max_p
+        RETURN false
+    ELSE IF queue.length < capacity THEN
+        queue.enqueue(packet)
+        PRINT "Packet enqueued, size: ", packet.size, ", avg queue length: ", avg, ", max_p: ", max_p
+        count = 0
+        RETURN true
+    ELSE
+        PRINT "Queue full, packet dropped, size: ", packet.size
+        RETURN false
+    END IF
+END FUNCTION
+
+FUNCTION simulate_red(packets, min_th, max_th, w_q, max_p, capacity)
+    queue = EMPTY QUEUE
+    avg = 0
+    count = 0
+    dropped = 0
+    PRINT "Initial queue: empty"
+    FOR EACH packet IN packets
+        IF red_enqueue(queue, packet, min_th, max_th, w_q, max_p, capacity) THEN
+            // Packet enqueued
+        ELSE
+            dropped = dropped + 1
+        END IF
+    END FOR
+    PRINT "Final queue length: ", queue.length
+    PRINT "Packets dropped: ", dropped
+    PRINT "Final queue: ", queue
+END FUNCTION
+
+
+
+### RED Algorithm Overview ###
+RED calculates the average queue length using an exponential weighted moving average:
+$ \text{avg} = (1 - w_q) \cdot \text{avg} + w_q \cdot \text{current\_queue\_length} $
+Based on the average queue length ($ \text{avg} $):
+
+If $ \text{avg} < \min_{\text{th}} $, enqueue the packet.
+If $ \text{avg} \geq \max_{\text{th}} $, drop the packet.
+If $ \min_{\text{th}} \leq \text{avg} < \max_{\text{th}} $, drop the packet with probability:
+$ p_b = \max_p \cdot \frac{\text{avg} - \min_{\text{th}}}{\max_{\text{th}} - \min_{\text{th}}} $
+$ p_a = \frac{p_b}{1 - \text{count} \cdot p_b} $
+where $ \text{count} $ is the number of packets since the last drop.
