@@ -1,0 +1,118 @@
+// Packet structure: {size, arrival_time}
+// Queue structure: array or list with capacity, front, rear pointers
+
+FUNCTION create_queue(capacity)
+    RETURN Queue with capacity, empty items, front = 0, rear = -1, length = 0
+END FUNCTION
+
+FUNCTION enqueue(queue, packet)
+    IF queue.length >= queue.capacity THEN
+        PRINT "Queue full, packet dropped, size: ", packet.size
+        RETURN false
+    END IF
+    queue.rear = (queue.rear + 1) mod queue.capacity
+    queue.items[queue.rear] = packet
+    queue.length = queue.length + 1
+    PRINT "Packet enqueued, size: ", packet.size
+    RETURN true
+END FUNCTION
+
+FUNCTION dequeue(queue)
+    IF queue.length = 0 THEN
+        RETURN null
+    END IF
+    packet = queue.items[queue.front]
+    queue.front = (queue.front + 1) mod queue.capacity
+    queue.length = queue.length - 1
+    RETURN packet
+END FUNCTION
+
+FUNCTION peek(queue)
+    IF queue.length = 0 THEN
+        RETURN null
+    END IF
+    RETURN queue.items[queue.front]
+END FUNCTION
+
+FUNCTION simulate_codel(packets, target, interval, capacity)
+    queue = create_queue(capacity)
+    current_time = 0
+    first_above_time = 0
+    drop_next = INFINITY
+    drop_count = 0
+    dropped = 0
+    PRINT "Initial queue: empty"
+
+    FOR EACH packet IN packets
+        packet.arrival_time = current_time
+        IF enqueue(queue, packet) THEN
+            WHILE queue.length > 0
+                front_packet = peek(queue)
+                sojourn_time = current_time - front_packet.arrival_time
+                IF sojourn_time < target OR queue.length <= 4 THEN
+                    first_above_time = 0
+                    drop_next = INFINITY
+                    packet = dequeue(queue)
+                    PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+                    drop_count = 0
+                ELSE IF first_above_time = 0 THEN
+                    first_above_time = current_time + interval
+                    drop_next = first_above_time
+                    packet = dequeue(queue)
+                    PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+                ELSE IF current_time >= drop_next THEN
+                    packet = dequeue(queue)
+                    PRINT "Packet dropped, size: ", packet.size, ", sojourn time: ", sojourn_time
+                    dropped = dropped + 1
+                    drop_count = drop_count + 1
+                    drop_next = current_time + interval / sqrt(drop_count)
+                ELSE
+                    packet = dequeue(queue)
+                    PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+                    drop_count = 0
+                END IF
+            END WHILE
+        ELSE
+            dropped = dropped + 1
+        END IF
+        current_time = current_time + 1
+    END FOR
+
+    WHILE queue.length > 0
+        front_packet = peek(queue)
+        sojourn_time = current_time - front_packet.arrival_time
+        IF sojourn_time < target OR queue.length <= 4 THEN
+            first_above_time = 0
+            drop_next = INFINITY
+            packet = dequeue(queue)
+            PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+            drop_count = 0
+        ELSE IF first_above_time = 0 THEN
+            first_above_time = current_time + interval
+            drop_next = first_above_time
+            packet = dequeue(queue)
+            PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+        ELSE IF current_time >= drop_next THEN
+            packet = dequeue(queue)
+            PRINT "Packet dropped, size: ", packet.size, ", sojourn time: ", sojourn_time
+            dropped = dropped + 1
+            drop_count = drop_count + 1
+            drop_next = current_time + interval / sqrt(drop_count)
+        ELSE
+            packet = dequeue(queue)
+            PRINT "Packet dequeued, size: ", packet.size, ", sojourn time: ", sojourn_time
+            drop_count = 0
+        END IF
+        current_time = current_time + 1
+    END WHILE
+
+    PRINT "Final queue length: ", queue.length
+    PRINT "Packets dropped: ", dropped
+    PRINT "Final queue: empty"
+END FUNCTION
+
+// Main
+packets = array of 200 packets with random sizes (1–100)
+simulate_codel(packets, target = 5, interval = 100, capacity = 100)
+
+
