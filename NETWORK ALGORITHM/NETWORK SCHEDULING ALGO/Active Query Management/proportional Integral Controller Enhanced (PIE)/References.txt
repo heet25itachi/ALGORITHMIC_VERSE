@@ -1,0 +1,27 @@
+### References for Proportional Integral Controller Enchanced (PIE) ###
+
+
+1. Pan, R., Natarajan, P., Piglione, C., Prabhu, M. S., Subramanian, V., Baker, F., & VerSteeg, B. (2017). PIE: A Lightweight Control Scheme to Address the Bufferbloat Problem. IETF RFC 8033.
+
+--Formal specification of PIE, including default parameters (target = 15 ms, update_interval = 30 ms, ( \alpha = 0.125 ), ( \beta = 1.25 ), max_drop_prob = 0.1, max_burst = 150 ms).
+
+
+2. Nichols, K., & Jacobson, V. (2012). Controlling Queue Delay. Communications of the ACM, 55(7), 42–50.
+
+--Contextual reference comparing PIE to CoDel, highlighting delay-based AQM approaches.
+
+
+
+3. Wikipedia contributors. (2025). Active Queue Management. Retrieved August 12, 2025, from https://en.wikipedia.org/wiki/Active_queue_management.
+
+--Overview of PIE and other AQM algorithms, providing context for parameter choices and implementation.
+
+
+4. Pan, R., Natarajan, P., Baker, F., & White, G. (2013). Proportional Integral Controller Enhanced (PIE): A Lightweight AQM Solution to the Bufferbloat Problem. ACM SIGCOMM Computer Communication Review, 43(4), 543–544.
+
+--Introduces PIE’s design and its advantages over RED and CoDel for low-latency networks.
+
+
+5. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). Introduction to Algorithms (3rd ed.). MIT Press.
+
+--General reference for queue data structures and algorithmic principles used in PIE’s queue management.
