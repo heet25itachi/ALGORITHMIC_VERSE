@@ -1,0 +1,25 @@
+### References for Controlled Delay (CoDel) ###
+
+1. Nichols, K., & Jacobson, V. (2012). Controlling Queue Delay. Communications of the ACM, 55(7), 42–50.
+
+-- Foundational paper introducing the CoDel algorithm, detailing its sojourn time-based dropping mechanism.
+
+
+2. Wikipedia contributors. (2025). Active Queue Management. Retrieved August 12, 2025, from https://en.wikipedia.org/wiki/Active_queue_management.
+
+--Overview of CoDel and other AQM algorithms, providing context for parameters (target, interval).
+
+
+3. Nichols, K., Jacobson, V., McGregor, A., & Iyengar, J. (2018). Controlled Delay Active Queue Management. IETF RFC 8289.
+
+--Formal specification of CoDel, including target (5 ms) and interval (100 ms) defaults.
+
+
+4. GeeksforGeeks. (2025). Controlled Delay (CoDel) Algorithm. Retrieved from https://www.geeksforgeeks.org/controlled-delay-codel-queue-discipline/.
+
+--Practical explanation of CoDel’s logic, aiding implementation details.
+
+
+5. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). Introduction to Algorithms (3rd ed.). MIT Press.
+
+--General reference for queue data structures and algorithmic principles used in CoDel’s queue management.
