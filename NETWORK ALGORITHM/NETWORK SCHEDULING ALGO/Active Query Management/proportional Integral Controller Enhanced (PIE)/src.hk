@@ -1,0 +1,85 @@
+import System.Random
+import Data.List (intercalate)
+import Text.Printf
+
+-- Define Packet and Queue data types
+data Packet = Packet { size :: Int, arrivalTime :: Double } deriving (Show)
+data Queue = Queue { items :: [Packet], capacity :: Int } deriving (Show)
+
+-- Initialize queue
+newQueue :: Int -> Queue
+newQueue cap = Queue { items = [], capacity = cap }
+
+-- Enqueue packet
+enqueue :: Packet -> Queue -> Maybe Queue
+enqueue p q
+    | length (items q) >= capacity q = Nothing
+    | otherwise = Just $ q { items = items q ++ [p] }
+
+-- Dequeue packet
+dequeue :: Queue -> (Packet, Queue)
+dequeue q = (head (items q), q { items = tail (items q) })
+
+-- Peek oldest packet
+peek :: Queue -> Packet
+peek q = head (items q)
+
+-- Simulate PIE algorithm
+simulatePie :: [Packet] -> Double -> Double -> Double -> Double -> Double -> Double -> Int -> IO ()
+simulatePie packets target updateInterval alpha beta maxDropProb maxBurst capacity = do
+    gen <- newStdGen
+    let (result, _) = foldl (step gen) initState packets
+    putStrLn $ "Final queue length: " ++ show (length $ items $ queue result)
+    putStrLn $ "Packets dropped: " ++ show (dropped result)
+    putStrLn "Final queue: empty"
+  where
+    initState = (QueueState (newQueue capacity) 0 0 0 0 maxBurst, gen)
+    data QueueState = QueueState { queue :: Queue, currentTime :: Double, lastUpdate :: Double, dropProb :: Double, prevDelay :: Double, burstTime :: Double, dropped :: Int }
+
+    step gen (state, g) p = let
+        packet = p { arrivalTime = currentTime state }
+        delay = if length (items $ queue state) == 0 then 0 else currentTime state - arrivalTime (peek $ queue state)
+        (dropProb', lastUpdate', prevDelay', burstTime') = if currentTime state - lastUpdate state >= updateInterval
+            then let error = delay - target
+                     dp = dropProb state + alpha * error + beta * (delay - prevDelay state)
+                     dp' = max 0 (min maxDropProb dp)
+                     bt = if delay > target then 0 else min maxBurst (burstTime state + updateInterval)
+                 in (dp', currentTime state, delay, bt)
+            else (dropProb state, lastUpdate state, prevDelay state, burstTime state)
+        (r, g') = randomR (0.0, 1.0) g
+        drop = burstTime' < maxBurst && delay > target && r < dropProb'
+        (queue', dropped') = if drop
+            then (queue state, dropped state + 1)
+            else case enqueue packet (queue state) of
+                Just q' -> let (deqP, q'') = dequeue q' in (q'', dropped state)
+                Nothing -> (queue state, dropped state + 1)
+        msg = if drop
+            then printf "Packet dropped, size: %d, queue delay: %.2f, drop prob: %.4f\n" (size p) delay dropProb'
+            else if length (items queue') < length (items $ queue state)
+                then printf "Packet enqueued, size: %d, queue delay: %.2f, drop prob: %.4f\nPacket dequeued, size: %d, queue delay: %.2f\n" (size p) delay dropProb' (size $ peek $ queue state) delay
+                else printf "Queue full, packet dropped, size: %d\n" (size p)
+      in (putStr msg >> return (QueueState queue' (currentTime state + 1) lastUpdate' dropProb' prevDelay' burstTime' dropped', g'))
+
+    -- Process remaining packets
+    drainQueue state g = if null (items $ queue state)
+        then (state, g)
+        else let
+            delay = currentTime state - arrivalTime (peek $ queue state)
+            (dropProb', lastUpdate', prevDelay', burstTime') = if currentTime state - lastUpdate state >= updateInterval
+                then let error = delay - target
+                         dp = dropProb state + alpha * error + beta * (delay - prevDelay state)
+                         dp' = max 0 (min maxDropProb dp)
+                         bt = if delay > target then 0 else min maxBurst (burstTime state + updateInterval)
+                     in (dp', currentTime state, delay, bt)
+                else (dropProb state, lastUpdate state, prevDelay state, burstTime state)
+            (deqP, queue') = dequeue $ queue state
+            msg = printf "Packet dequeued, size: %d, queue delay: %.2f\n" (size deqP) delay
+            newState = QueueState queue' (currentTime state + 1) lastUpdate' dropProb' prevDelay' burstTime' (dropped state)
+        in (putStr msg >> drainQueue newState g)
+
+main :: IO ()
+main = do
+    gen <- newStdGen
+    let packets = take 200 $ map Packet (randomRs (1, 100) gen) []
+    putStrLn "=== PIE ==="
+    simulatePie packets 15 30 0.125 1.25 0.1 150 100
