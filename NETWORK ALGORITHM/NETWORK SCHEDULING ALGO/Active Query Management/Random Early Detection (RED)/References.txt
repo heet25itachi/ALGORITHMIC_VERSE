@@ -1,0 +1,27 @@
+### References for Random Early Detection (RED) Implementations ###
+
+1. Floyd, S., & Jacobson, V. (1993). Random Early Detection Gateways for Congestion Avoidance. IEEE/ACM Transactions on Networking, 1(4), 397–413.  
+
+--Foundational paper introducing the RED algorithm and its queue management approach.
+
+
+2. Wikipedia contributors. (2025). Active Queue Management. Retrieved August 12, 2025, from https://en.wikipedia.org/wiki/Active_queue_management.  
+
+--Provides an overview of RED and related AQM algorithms, including parameters and variants.
+
+
+3. Floyd, S., Gummadi, R., & Shenker, S. (2001). Adaptive RED: An Algorithm for Increasing the Robustness of RED’s Active Queue Management. AT&T Center for Internet Research at ICSI.  
+
+--Discusses RED’s limitations and the basis for ARED, informing parameter choices like ( \min_{\text{th}} ), ( \max_{\text{th}} ), ( w_q ), and ( \max_p ).
+
+
+4. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). Introduction to Algorithms (3rd ed.). MIT Press.  
+
+--General reference for queue management and algorithmic complexity relevant to RED’s implementation.
+
+
+5. GeeksforGeeks. (2025). Random Early Detection (RED) Queue Discipline. Retrieved from https://www.geeksforgeeks.org/random-early-detection-red-queue-discipline/.  
+
+--Practical guide for RED’s algorithm logic and implementation considerations.
+
+
