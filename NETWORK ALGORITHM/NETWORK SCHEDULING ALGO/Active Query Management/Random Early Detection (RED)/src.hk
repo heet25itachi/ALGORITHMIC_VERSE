@@ -1,0 +1,62 @@
+import System.Random
+import Data.List (intercalate)
+import Text.Printf
+
+-- Define Packet and Queue data types
+data Packet = Packet { size :: Int } deriving (Show)
+data Queue = Queue { items :: [Packet], capacity :: Int } deriving (Show)
+
+-- Initialize a new queue
+newQueue :: Int -> Queue
+newQueue cap = Queue { items = [], capacity = cap }
+
+-- Enqueue a packet
+enqueue :: Packet -> Queue -> Maybe Queue
+enqueue p q
+    | length (items q) >= capacity q = Nothing
+    | otherwise = Just $ q { items = items q ++ [p] }
+
+-- Get queue size
+queueSize :: Queue -> Int
+queueSize = length . items
+
+-- Print queue contents
+printQueue :: Queue -> String
+printQueue q = "Final queue: " ++ intercalate " " (map (show . size) (items q))
+
+-- Simulate RED algorithm
+simulateRed :: [Packet] -> Double -> Double -> Double -> Double -> Int -> IO ()
+simulateRed packets minTh maxTh wq maxP capacity = do
+    gen <- newStdGen
+    let (result, _) = foldl (step gen) initState packets
+    putStrLn $ "Final queue length: " ++ show (queueSize $ queue result)
+    putStrLn $ "Packets dropped: " ++ show (dropped result)
+    putStrLn $ printQueue (queue result)
+  where
+    initState = (QueueState (newQueue capacity) 0 0 0, gen)
+    data QueueState = QueueState { queue :: Queue, avg :: Double, count :: Double, dropped :: Int }
+    step gen (state, g) p = let
+        avg' = if queueSize (queue state) == 0 then 0 else (1 - wq) * avg state + wq * fromIntegral (queueSize $ queue state)
+        (drop, pb, g') = if avg' < minTh then (False, 0, g)
+                         else if avg' >= maxTh then (True, 0, g)
+                         else let pb = maxP * (avg' - minTh) / (maxTh - minTh)
+                                  pa = pb / (1 - count state * pb)
+                                  (r, g') = randomR (0.0, 1.0) g
+                              in (r < pa, pb, g')
+        count' = if drop then count state + 1 else 0
+        (queue', dropped') = if drop
+                             then (queue state, dropped state + 1)
+                             else case enqueue p (queue state) of
+                                    Just q -> (q, dropped state)
+                                    Nothing -> (queue state, dropped state + 1)
+        msg = if drop || enqueue p (queue state) == Nothing
+              then printf "Packet dropped, size: %d, avg queue length: %.2f, max_p: %.4f" (size p) avg' maxP
+              else printf "Packet enqueued, size: %d, avg queue length: %.2f, max_p: %.4f" (size p) avg' maxP
+      in (putStrLn msg >> return (QueueState queue' avg' count' dropped', g'))
+
+main :: IO ()
+main = do
+    gen <- newStdGen
+    let packets = take 200 $ map Packet $ randomRs (1, 100) gen
+    putStrLn "=== RED ==="
+    simulateRed packets 20 80 0.002 0.1 100
