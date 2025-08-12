@@ -1,0 +1,64 @@
+module Main where
+
+import System.Random
+import Data.List (intercalate)
+
+data Packet = Packet { size :: Int } deriving (Show)
+
+data CoDelQueue = CoDelQueue { items :: [Packet], capacity :: Int, firstAboveTime :: Double, dropNext :: Double, dropCount :: Int }
+
+newCoDelQueue :: Int -> CoDelQueue
+newCoDelQueue cap = CoDelQueue { items = [], capacity = cap, firstAboveTime = 0, dropNext = 1/0, dropCount = 0 }
+
+enqueue :: Packet -> CoDelQueue -> Maybe CoDelQueue
+enqueue p q | length (items q) >= capacity q = Nothing
+            | otherwise = Just $ q { items = items q ++ [p] }
+
+dequeue :: Double -> Double -> Double -> CoDelQueue -> (Maybe Packet, CoDelQueue)
+dequeue currentTime target interval q
+  | null (items q) = (Nothing, q)
+  | otherwise = let p = head (items q)
+                    sojournTime = currentTime - arrivalTime p  # Assuming Packet has arrivalTime field; adjust as needed
+                in if sojournTime < target || length (items q) <= 4 then
+                       let q' = q { items = tail (items q), firstAboveTime = 0, dropNext = 1/0, dropCount = 0 }
+                       in (Just p, q')
+                   else if firstAboveTime q == 0 then
+                       let q' = q { items = tail (items q), firstAboveTime = currentTime + interval, dropNext = currentTime + interval }
+                       in (Just p, q')
+                   else if currentTime >= dropNext q then
+                       let q' = q { items = tail (items q), dropCount = dropCount q + 1 }
+                           newDropNext = currentTime + interval / sqrt (fromIntegral $ dropCount q' )
+                       in (Nothing, q' { dropNext = newDropNext })
+                   else
+                       let q' = q { items = tail (items q), dropCount = 0 }
+                       in (Just p, q')
+
+simulateCoDel :: [Packet] -> Double -> Double -> Int -> IO ()
+simulateCoDel packets target interval capacity = do
+    gen <- newStdGen
+    let (result, _) = foldl (step gen) initState packets
+    putStrLn $ "Final queue length: " ++ show (length $ items $ queue result)
+    putStrLn $ "Packets dropped: " ++ show (dropped result)
+    putStrLn $ "Final queue: empty"
+  where
+    initState = (QueueState (newCoDelQueue capacity) 0 0, gen)
+    data QueueState = QueueState { queue :: CoDelQueue, currentTime :: Double, dropped :: Int }
+
+    step gen (state, g) p = let
+        packet = p { arrivalTime = currentTime state }
+        (enqueued, q') = enqueue packet (queue state)
+        (q'', newDropped) = if enqueued then dequeueLoop (queue state) else (queue state, dropped state + 1)
+        newCurrentTime = currentTime state + 1.0
+      in (QueueState q'' newCurrentTime newDropped, g)
+
+    dequeueLoop q = let
+        (maybeP, q') = dequeue (currentTime state) target interval q
+        in case maybeP of
+             Nothing -> (q', dropped state + 1)
+             Just p' -> if null (items q') then (q', dropped state) else dequeueLoop q'
+
+main :: IO ()
+main = do
+    gen <- newStdGen
+    let packets = take 200 $ map Packet $ randomRs (1, 100) gen
+    simulateCoDel packets 5 100 100
