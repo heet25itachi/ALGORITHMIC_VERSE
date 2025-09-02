@@ -1,0 +1,16 @@
+data Dual = Dual { value :: Double, deriv :: Double } deriving Show
+
+instance Num Dual where
+    a + b = Dual (value a + value b) (deriv a + deriv b)
+    a * b = Dual (value a * value b) (deriv a * value b + value a * deriv b)
+    fromInteger i = Dual (fromInteger i) 0
+
+sinDual :: Dual -> Dual
+sinDual a = Dual (sin $ value a) (cos $ value a * deriv a)
+
+main = do
+    let x = Dual 3.14 1.0
+        x2 = x * x
+        sx = sinDual x
+        f = x2 * sx
+    print $ "f(x) = " ++ show (value f) ++ ", f'(x) = " ++ show (deriv f)
