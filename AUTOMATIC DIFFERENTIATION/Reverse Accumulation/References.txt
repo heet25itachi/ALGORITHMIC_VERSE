@@ -1,0 +1,35 @@
+1. Neidinger, Richard D. (2010). "Introduction to Automatic Differentiation and MATLAB Object-Oriented Programming". SIAM Review, 52(3), 545–563. CiteSeerX 10.1.1.362.6580. doi: 10.1137/080743627. S2CID 17134969. URL: https://www.jstor.org/stable/41061514
+
+2. Baydin, Atilim Gunes; Pearlmutter, Barak; Radul, Alexey Andreyevich; Siskind, Jeffrey (2018). "Automatic differentiation in machine learning: a survey". Journal of Machine Learning Research, 18, 1–43. URL: https://www.jmlr.org/papers/v18/17-468.html
+
+3. Dawood, Hend; Megahed, Nefertiti (2023). "Automatic differentiation of uncertainties: an interval computational differentiation for first and higher derivatives with implementation". PeerJ Computer Science, 9, e1301. doi: 10.7717/peerj-cs.1301. URL: https://doi.org/10.7717/peerj-cs.1301
+
+4. Dawood, Hend; Megahed, Nefertiti (2019). "A Consistent and Categorical Axiomatization of Differentiation Arithmetic Applicable to First and Higher Order Derivatives". Punjab University Journal of Mathematics, 51(11), 77–100. doi: 10.5281/zenodo.3479546. URL: http://doi.org/10.5281/zenodo.3479546
+
+5. Dawood, Hend; Dawood, Yasser (2020). "Universal Intervals: Towards a Dependency-Aware Interval Algebra". In S. Chakraverty (Ed.), Mathematical Methods in Interdisciplinary Sciences (Chapter 10, pp. 167–214). John Wiley & Sons. ISBN 978-1-119-58550-3. doi: 10.1002/9781119585640.ch10. URL: https://doi.org/10.1002/9781119585640.ch10
+
+6. Dawood, Hend (2014). "Interval Mathematics as a Potential Weapon against Uncertainty". In S. Chakraverty (Ed.), Mathematics of Uncertainty Modeling in the Analysis of Engineering and Science Problems (Chapter 1, pp. 1–38). IGI Global. ISBN 978-1-4666-4991-0.
+
+7. ump, Siegfried M. (1999). "INTLAB–INTerval LABoratory". In T. Csendes (Ed.), Developments in Reliable Computing (pp. 77–104). Kluwer Academic Publishers.
+
+8. Chevillard, S.; Joldes, M.; Lauter, C. (2010). "Sollya: An Environment for the Development of Numerical Codes". In K. Fukuda, J. van der Hoeven, M. Joswig, & N. Takayama (Eds.), Mathematical Software - ICMS 2010 (Vol. 6327, Lecture Notes in Computer Science, pp. 28–31). Springer. doi: 10.1007/978-3-642-15582-6_5.
+
+9. Dawood, Hend (2022). "InCLosure (Interval enCLosure)–A Language and Environment for Reliable Scientific Computing". Computer Software, Version 4.0. Department of Mathematics, Faculty of Science, Cairo University. doi: 10.5281/zenodo.2702404. URL: https://doi.org/10.5281/zenodo.2702404
+
+10. Fries, Christian P. (2019). "Stochastic Automatic Differentiation: Automatic Differentiation for Monte-Carlo Simulations". Quantitative Finance, 19(6), 1043–1059. doi: 10.1080/14697688.2018.1556398. URL: https://doi.org/10.1080/14697688.2018.1556398
+
+11. Wengert, R. E. (1964). "A simple automatic derivative evaluation program". Communications of the ACM, 7(8), 463–464. doi: 10.1145/355586.364791. S2CID 24039274.
+
+12. Griewank, Andreas (2012). "Who invented the reverse mode of differentiation?" Optimization Stories, Documenta Mathematica Series, Vol. 6, 389–400. doi: 10.4171/dms/6/38. ISBN 978-3-936609-58-5.
+
+13. Linnainmaa, Seppo (1976). "Taylor Expansion of the Accumulated Rounding Error". BIT Numerical Mathematics, 16(2), 146–160. doi: 10.1007/BF01931367. S2CID 122357351.
+
+14. Schüle, Maximilian E.; Springer, Maximilian; Kemper, Alfons; Neumann, Thomas (2022). "LLVM code optimisation for automatic differentiation". Proceedings of the Sixth Workshop on Data Management for End-To-End Machine Learning, 1–4. doi: 10.1145/3533028.3533302. ISBN 9781450393751. S2CID 248853034.
+
+15. Schüle, Maximilian E.; Lang, Harald; Springer, Maximilian; Kemper, Alfons; Neumann, Thomas; Günnemann, Stephan (2021). "In-Database Machine Learning with SQL on GPUs". 33rd International Conference on Scientific and Statistical Database Management, 25–36. doi: 10.1145/3468791.3468840. ISBN 9781450384131. S2CID 235386969.
+
+16. Schüle, Maximilian E.; Lang, Harald; Springer, Maximilian; Kemper, Alfons; Neumann, Thomas; Günnemann, Stephan (2022). "Recursive SQL and GPU-support for in-database machine learning". Distributed and Parallel Databases, 40(2–3), 205–259. doi: 10.1007/s10619-022-07417-7. S2CID 250412395.
+
+17. Naumann, Uwe (2008). "Optimal Jacobian accumulation is NP-complete". Mathematical Programming, 112(2), 427–441. CiteSeerX 10.1.1.320.5665. doi: 10.1007/s10107-006-0042-z. S2CID 30219572.
+
+18. AADC Prototype Library. (2022). GitHub. Retrieved September 2, 2025, from https://github.com/AADC-Prototype/AADC.
