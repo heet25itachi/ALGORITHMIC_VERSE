@@ -1,0 +1,25 @@
+1. Bartholomew-Biggs, M., Brown, S., Christianson, B., & Dixon, L. (2000). Automatic differentiation of algorithms. Journal of Computational and Applied Mathematics, 124(1–2), 171–190. https://doi.org/10.1016/S0377-0427(00)00422-2
+
+2. Dawood, H. (2014). Interval mathematics as a potential weapon against uncertainty. In S. Chakraverty (Ed.), Mathematics of uncertainty modeling in the analysis of engineering and science problems (pp. 1–38). IGI Global. https://doi.org/10.4018/978-1-4666-4991-0.ch001
+
+3. Dawood, H., & Dawood, Y. (2020). Universal intervals: Towards a dependency-aware interval algebra. In S. Chakraverty (Ed.), Mathematical methods in interdisciplinary sciences (pp. 167–214). John Wiley & Sons. https://doi.org/10.1002/9781119585640.ch10
+
+4. Fries, C. P. (2019). Stochastic automatic differentiation: Automatic differentiation for Monte-Carlo simulations. Quantitative Finance, 19(6), 1043–1059. https://doi.org/10.1080/14697688.2018.1556398
+
+5. Griewank, A. (2012). Who invented the reverse mode of differentiation? In Optimization Stories, Documenta Mathematica Series (Vol. 6, pp. 389–400). https://doi.org/10.4171/dms/6/38
+
+6. Linnainmaa, S. (1976). Taylor expansion of the accumulated rounding error. BIT Numerical Mathematics, 16(2), 146–160. https://doi.org/10.1007/BF01931367
+
+7. Naumann, U. (2008). Optimal Jacobian accumulation is NP-complete. Mathematical Programming, 112(2), 427–441. https://doi.org/10.1007/s10107-006-0042-z
+
+8. Schüle, M. E., Lang, H., Springer, M., Kemper, A., Neumann, T., & Günnemann, S. (2021). In-database machine learning with SQL on GPUs. In 33rd International Conference on Scientific and Statistical Database Management (pp. 25–36). https://doi.org/10.1145/3468791.3468840
+
+9. Schüle, M. E., Lang, H., Springer, M., Kemper, A., Neumann, T., & Günnemann, S. (2022). Recursive SQL and GPU-support for in-database machine learning. Distributed and Parallel Databases, 40(2–3), 205–259. https://doi.org/10.1007/s10619-022-07417-7
+
+10. Schüle, M. E., Springer, M., Kemper, A., & Neumann, T. (2022). LLVM code optimisation for automatic differentiation. In Proceedings of the Sixth Workshop on Data Management for End-To-End Machine Learning (pp. 1–4). https://doi.org/10.1145/3533028.3533302
+
+11. Wengert, R. E. (1964). A simple automatic derivative evaluation program. Communications of the ACM, 7(8), 463–464. https://doi.org/10.1145/355586.364791
+
+12. Wikipedia contributors. (2025). Automatic differentiation. Wikipedia, The Free Encyclopedia. Retrieved September 2, 2025, from https://en.wikipedia.org/wiki/Automatic_differentiation
+
+13. AADC Prototype Library. (2022). GitHub. Retrieved September 2, 2025, from https://github.com/AADC-Prototype/AADC
