@@ -1,0 +1,67 @@
+// Node structure for computation graph: value, gradient (initialized to 0), children nodes, operation type
+STRUCT Node
+    value: float
+    grad: float (initialized to 0)
+    children: list of Node pointers
+    op_type: string (e.g., "mul", "sin", "var")
+END STRUCT
+
+// Forward pass: build computation graph for f(x) = x^2 * sin(x)
+FUNCTION build_graph(x: float) RETURNS Node pointer (f_node)
+    // Create variable node for x
+    x_node = new Node(value = x, op_type = "var", children = empty)
+
+    // x^2 = x * x
+    x2_node = new Node(value = x * x, op_type = "mul", children = [x_node, x_node])
+
+    // sin(x)
+    sin_x_node = new Node(value = sin(x), op_type = "sin", children = [x_node])
+
+    // f = x^2 * sin(x)
+    f_node = new Node(value = x2_node.value * sin_x_node.value, op_type = "mul", children = [x2_node, sin_x_node])
+
+    RETURN f_node
+END FUNCTION
+
+// Backward pass: propagate gradients from output to inputs
+FUNCTION backward(f_node: Node pointer)
+    f_node.grad = 1.0  // df/df = 1
+
+    // Use a stack to traverse graph in reverse topological order (post-order)
+    stack = list with f_node
+    WHILE stack is not empty
+        curr = pop(stack)
+        IF curr.op_type = "mul" THEN
+            left = curr.children[0]
+            right = curr.children[1]
+            left.grad = left.grad + curr.grad * right.value
+            right.grad = right.grad + curr.grad * left.value
+            push(stack, left)
+            push(stack, right)
+        ELSE IF curr.op_type = "sin" THEN
+            child = curr.children[0]
+            child.grad = child.grad + curr.grad * cos(child.value)
+            push(stack, child)
+        END IF  // "var" nodes have no children, so no further propagation
+    END WHILE
+END FUNCTION
+
+// Main function
+MAIN
+    x = 3.14
+    f_node = build_graph(x)
+    backward(f_node)
+    PRINT "f(x) = ", f_node.value, ", f'(x) = ", x_node.grad  // x_node is the variable node
+END MAIN
+
+
+
+### Notes on Pseudocode ###
+
+Algorithm: Builds a computation graph during the forward pass and traverses it backward to accumulate gradients using the chain rule.
+
+Test Case: Computes $ f(x) = x^2 \cdot \sin(x) $ and $ f'(x) = 2x \sin(x) + x^2 \cos(x) $ at $ x = 3.14 $. Expected output: f(x) ≈ 9.87, f'(x) ≈ 0.01.
+
+Constraints: Assumes dynamic memory for nodes, floating-point precision, simple graph for the fixed function, no higher-order derivatives.
+
+Simplifications: Fixed function, basic operations (mul, sin), no graph cleanup or memory management shown, topological traversal using a stack.
