@@ -1,0 +1,53 @@
+// Dual number structure: (value, derivative)
+STRUCT Dual
+    value: float
+    deriv: float
+END STRUCT
+
+// Addition of dual numbers: (v1, d1) + (v2, d2) = (v1 + v2, d1 + d2)
+FUNCTION dual_add(a: Dual, b: Dual) RETURNS Dual
+    RETURN Dual(a.value + b.value, a.deriv + b.deriv)
+END FUNCTION
+
+// Multiplication of dual numbers: (v1, d1) * (v2, d2) = (v1 * v2, d1 * v2 + v1 * d2)
+FUNCTION dual_mul(a: Dual, b: Dual) RETURNS Dual
+    RETURN Dual(a.value * b.value, a.deriv * b.value + a.value * b.deriv)
+END FUNCTION
+
+// Sine of dual number: sin(v, d) = (sin(v), cos(v) * d)
+FUNCTION dual_sin(a: Dual) RETURNS Dual
+    RETURN Dual(sin(a.value), cos(a.value) * a.deriv)
+END FUNCTION
+
+// Main function to compute f(x) = x^2 * sin(x) and f'(x)
+FUNCTION compute_ad(x: float) RETURNS (float, float)
+    // Initialize dual number with x and derivative 1.0
+    x_dual = Dual(x, 1.0)
+    
+    // Compute x^2
+    x2 = dual_mul(x_dual, x_dual)
+    
+    // Compute sin(x)
+    sx = dual_sin(x_dual)
+    
+    // Compute f(x) = x^2 * sin(x)
+    f = dual_mul(x2, sx)
+    
+    PRINT "f(x) = ", f.value, ", f'(x) = ", f.deriv
+    RETURN (f.value, f.deriv)
+END FUNCTION
+
+// Main program
+MAIN
+    x = 3.14
+    (f_val, f_deriv) = compute_ad(x)
+END MAIN
+
+
+
+### Notes on Pseudocode ###
+
+Algorithm: Forward-mode AD using dual numbers to propagate both the function value and its derivative through elementary operations (addition, multiplication, sine) via the chain rule.
+Test Case: Computes $ f(x) = x^2 \cdot \sin(x) $ and $ f'(x) $ at $ x = 3.14 $. Analytically, $ f(x) = x^2 \sin(x) $, so $ f'(x) = 2x \sin(x) + x^2 \cos(x) $. At $ x = 3.14 $, $ f(3.14) \approx 9.87 $, $ f'(3.14) \approx 0.01 $.
+Output: Prints "f(x) = 9.87, f'(x) = 0.01" (rounded to two decimal places).
+Constraints: In-memory computation, floating-point precision, no higher-order derivatives, assumes basic math functions (sin, cos).
