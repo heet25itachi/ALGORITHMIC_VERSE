@@ -1,0 +1,28 @@
+import Text.Printf
+
+data Node = Node { value :: Double, grad :: Double, children :: [Node], opType :: String } deriving Show
+
+backward :: Node -> Node
+backward fNode = go [fNode { grad = 1.0 }]
+  where
+    go [] = fNode
+    go (curr:stack) = case opType curr of
+        "mul" -> let [left, right] = children curr
+                     left' = left { grad = grad left + grad curr * value right }
+                     right' = right { grad = grad right + grad curr * value left }
+                 in go (left' : right' : stack)
+        "sin" -> let [child] = children curr
+                     child' = child { grad = grad child + grad curr * cos (value child) }
+                 in go (child' : stack)
+        _ -> go stack
+
+main :: IO ()
+main = do
+    let x = 3.14
+        xNode = Node x 0.0 [] "var"
+        x2Node = Node (x * x) 0.0 [xNode, xNode] "mul"
+        sinXNode = Node (sin x) 0.0 [xNode] "sin"
+        fNode = Node (value x2Node * value sinXNode) 0.0 [x2Node, sinXNode] "mul"
+        result = backward fNode
+        xNode' = head (children (head (children result)))
+    printf "f(x) = %.2f, f'(x) = %.2f\n" (value result) (grad xNode')
