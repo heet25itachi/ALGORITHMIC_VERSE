@@ -1,0 +1,28 @@
+#include <iostream>
+#include <cmath>
+
+struct Dual {
+    double value, deriv;
+    Dual(double v, double d) : value(v), deriv(d) {}
+};
+
+Dual operator+(Dual a, Dual b) {
+    return Dual(a.value + b.value, a.deriv + b.deriv);
+}
+
+Dual operator*(Dual a, Dual b) {
+    return Dual(a.value * b.value, a.deriv * b.value + a.value * b.deriv);
+}
+
+Dual sin(Dual a) {
+    return Dual(std::sin(a.value), std::cos(a.value) * a.deriv);
+}
+
+int main() {
+    Dual x(3.14, 1.0);
+    Dual x2 = x * x;
+    Dual sx = sin(x);
+    Dual f = x2 * sx;
+    std::cout << "f(x) = " << f.value << ", f'(x) = " << f.deriv << std::endl;
+    return 0;
+}
