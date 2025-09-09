@@ -1,0 +1,20 @@
+import System.Random
+import qualified Data.Map.Strict as Map
+
+r :: Int
+r = 65536
+
+birthdayAttack :: StdGen -> (Int, (Int, Integer, Integer))
+birthdayAttack gen = go Map.empty 0 gen
+  where
+    go table trials g = let (x, g') = random g :: (Integer, StdGen)
+                            h = x `mod` fromIntegral r
+                        in case Map.lookup h table of
+                             Just prev_x | prev_x /= x -> (trials + 1, (h, prev_x, x))
+                             _ -> go (Map.insert h x table) (trials + 1) g'
+
+main :: IO ()
+main = do
+    gen <- newStdGen
+    let (trials, (h, xi, xj)) = birthdayAttack gen
+    putStrLn $ "Collision found after " ++ show trials ++ " trials: x_i = " ++ show xi ++ ", x_j = " ++ show xj ++ ", hash = " ++ show h
