@@ -1,0 +1,19 @@
+Bellare, M., & Kohno, T. (2003). Hash function balance and its impact on birthday attacks. IACR ePrint Archive. Retrieved from http://eprint.iacr.org/2003/065/
+
+Damgård, I. (1989). A design principle for hash functions. In G. Brassard (Ed.), Advances in Cryptology – CRYPTO ’89 (Lecture Notes in Computer Science, Vol. 435, pp. 416–427). Springer-Verlag.
+
+Dobbertin, H., Bosselaers, A., & Preneel, B. (1996). RIPEMD-160, a strengthened version of RIPEMD. In D. Gollmann (Ed.), Fast Software Encryption ’96 (Lecture Notes in Computer Science, Vol. 1039, pp. 71–82). Springer-Verlag.
+
+Menezes, A. J., van Oorschot, P. C., & Vanstone, S. A. (1997). Handbook of applied cryptography. CRC Press.
+
+Merkle, R. C. (1989). One way hash functions and DES. In G. Brassard (Ed.), Advances in Cryptology – CRYPTO ’89 (Lecture Notes in Computer Science, Vol. 435, pp. 428–446). Springer-Verlag.
+
+National Institute of Standards and Technology. (2000). FIPS 180-2, Secure hash standard. Retrieved from https://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
+
+Rivest, R. (1992). The MD5 message-digest algorithm. IETF RFC 1321. Retrieved from https://www.ietf.org/rfc/rfc1321.txt
+
+Stinson, D. R. (1995). Cryptography: Theory and practice (1st ed.). CRC Press.
+
+van Oorschot, P. C., & Wiener, M. J. (1999). Parallel collision search with cryptanalytic applications. Journal of Cryptology, 12(1), 1–28. https://doi.org/10.1007/PL00003816
+
+Yuval, G. (1979). How to swindle Rabin. Cryptologia, 3(3), 187–190. https://doi.org/10.1080/0161-117991853973
