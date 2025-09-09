@@ -1,0 +1,33 @@
+// Hash function h: D -> R, where R has size r
+FUNCTION hash(x: integer) RETURNS integer
+    RETURN x mod r // Simple modulo hash for demonstration
+END FUNCTION
+
+// Birthday attack to find a collision
+FUNCTION birthday_attack(r: integer) RETURNS (integer, integer, integer, integer)
+    // Initialize empty hash table to store input-hash pairs
+    table = empty hash table mapping hash values to inputs
+    trials = 0
+
+    WHILE true
+        // Generate random 64-bit integer x
+        x = random_integer(0, 2^64 - 1)
+        h = hash(x) // Compute hash value
+        trials = trials + 1
+
+        // Check for collision
+        IF table contains key h AND table[h] != x THEN
+            RETURN (trials, table[h], x, h) // Return trials, x_i, x_j, hash value
+        END IF
+
+        // Store input in table
+        table[h] = x
+    END WHILE
+END FUNCTION
+
+// Main program
+MAIN
+    r = 65536 // Range size 2^16
+    (trials, x_i, x_j, h) = birthday_attack(r)
+    PRINT "Collision found after ", trials, " trials: x_i = ", x_i, ", x_j = ", x_j, ", hash = ", h
+END MAIN
