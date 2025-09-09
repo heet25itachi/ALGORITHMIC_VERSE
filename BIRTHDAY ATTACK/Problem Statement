@@ -1,0 +1,31 @@
+Problem Statement: Birthday Attack for Hash Function Collision
+
+
+Objective=> Implement a birthday attack algorithm to find a collision in a hash function $ h: D \to R $, where $ D $ is a large domain (e.g., 64-bit integers) and $ R $ is a finite range of size $ r $. A collision occurs when two distinct inputs $ x_i, x_j \in D $ (i.e., $ x_i \neq x_j $) produce the same hash value $ h(x_i) = h(x_j) $. The implementation should simulate the attack by selecting random inputs, computing their hash values, and detecting a collision, as described in Bellare and Kohno’s paper on hash function balance and birthday attacks. The algorithm should be efficient and suitable for evaluating hash function security in cryptographic applications, such as ensuring data integrity in a trading platform.
+
+Input-> (i)Range size $ r $: The size of the hash function’s range $ R $, specified as an integer (e.g., $ r = 2^{16} = 65536 $).
+        (ii) Hash function $ h $: A function $ h: D \to R $ mapping domain inputs (64-bit integers) to range values (integers in $ [0, r-1] $). For simplicity, use $ h(x) = x \mod r $, but the implementation should be extensible to cryptographic hashes like SHA-1.
+        (iii) Random input generator: A mechanism to select random 64-bit integers from the domain $ D $, assumed to be uniformly distributed.
+
+Output -> (i) Number of trials $ q $: The number of hash computations performed until a collision is found.
+          (ii) Colliding pair $ (x_i, x_j) $: Two distinct inputs $ x_i, x_j \in D $ such that $ h(x_i) = h(x_j) $.
+          (iii) Hash value $ h $: The common hash value of the colliding pair.
+          (iv) Format: A string, e.g., "Collision found after 253 trials: x_i = 12345, x_j = 67890, hash = 54321".
+
+Constraints -> (i) Domain: $ D $ is the set of 64-bit integers (approximately $ [0, 2^{64}-1] $), sufficiently large to treat as infinite for practical purposes.
+              (ii) Range size: Use $ r = 65536 $ (i.e., $ 2^{16} $) to ensure manageable computation, with expected trials around $ \sqrt{r} \approx 256 $ for a regular hash function.
+              (iii) Hash function: Must be deterministic; for simplicity, use $ h(x) = x \mod r $, but the implementation should support substitution with cryptographic hashes (e.g., SHA-1 restricted to fixed-length inputs, as noted in the document).
+              (iv) Randomness: Inputs must be chosen independently and uniformly at random from $ D $, using language-specific random number generators.
+              (v) Storage: Use a hash table (or equivalent) to store input-hash pairs for $ O(1) $ average-case lookup to detect collisions.
+              (vi) Precision: Use 64-bit integers for inputs and hash values to avoid overflow in the test case.
+              (vii) Performance: The algorithm should minimize memory and computational overhead, targeting $ O(\sqrt{r}) $ expected trials and $ O(\sqrt{r}) $ memory for the hash table.
+
+Requirements -> (i) Correctness: The algorithm must correctly identify a collision (i.e., $ x_i \neq x_j $ with $ h(x_i) = h(x_j) $) and report the number of trials.
+                (ii) Efficiency: Use a hash table to track hash values and detect collisions in $ O(1) $ average time per lookup. The expected number of trials should approximate $ \sqrt{r} $ for a regular hash function.
+                (iii) Extensibility: The implementation should allow easy substitution of the hash function (e.g., replacing $ h(x) = x \mod r $ with SHA-1 or MD5).
+
+
+The hash function is regular (each range value has approximately the same number of pre-images), though the implementation should work for non-regular hashes.
+The random number generator provides uniform distribution over 64-bit integers.
+No external cryptographic libraries are required for the simple hash function; for real-world hashes, libraries like OpenSSL (C), BouncyCastle (Java), or Crypto (Python) may be needed.
+A single run is sufficient (not averaging over 10,000 runs as in the document’s experiments).
