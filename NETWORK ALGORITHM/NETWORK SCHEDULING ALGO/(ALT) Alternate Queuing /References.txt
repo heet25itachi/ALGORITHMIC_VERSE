@@ -1,0 +1,20 @@
+1. Wikipedia Contributors. (2025). ALTQ. In Wikipedia, The Free Encyclopedia. Retrieved September 15, 2025, from https://en.wikipedia.org/wiki/ALTQ
+
+2. FreeBSD Foundation. (2023). FreeBSD Handbook: ALTQ. Retrieved from https://docs.freebsd.org/en/books/handbook/advanced-networking/#network-altq
+
+3. Nichols, K., & Jacobson, V. (2012). Controlling queue delay: A modern AQM is just one piece of the solution to bufferbloat. Communications of the ACM, 55(7), 42–50. https://doi.org/10.1145/2209249.2209264
+
+4. Floyd, S., & Jacobson, V. (1995). Link-sharing and resource management models for packet networks. IEEE/ACM Transactions on Networking, 3(4), 365–386. https://doi.org/10.1109/90.413212
+
+5. Stoica, I., Shenker, S., & Zhang, H. (1998). Core-stateless fair queueing: Achieving approximately fair bandwidth allocations in high-speed networks. ACM SIGCOMM Computer Communication Review, 28(4), 118–130. https://doi.org/10.1145/285243.285258
+
+6. Zhang, L. (1997). Hierarchical fair service curve (HFSC) for link-sharing and resource management. Technical Report, Carnegie Mellon University.
+
+7. McKenney, P. E. (1990). Stochastic fairness queueing. Proceedings of IEEE INFOCOM '90, 733–740. https://doi.org/10.1109/INFCOM.1990.91303
+
+8. OpenBSD Project. (2014). OpenBSD 5.6 Release Notes. Retrieved from https://www.openbsd.org/56.html
+
+9. NetBSD Project. (2023). NetBSD Guide: Networking. Retrieved from https://netbsd.org/docs/guide/en/chap-net.html
+
+10. DragonFly BSD Project. (2023). DragonFly BSD Handbook. Retrieved from https://www.dragonflybsd.org/docs/handbook/
+
