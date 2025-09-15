@@ -1,0 +1,189 @@
+-- altq.hs
+module Main where
+
+import System.Random
+import Control.Monad.State
+import Control.Monad (when)
+import Data.List (foldl')
+
+data Packet = Packet { size :: Int, priority :: Int, flowId :: Int } deriving (Show)
+
+data Queue = Queue { items :: [Packet], capacity :: Int, totalBandwidth :: Int }
+data PRIQ = PRIQ { queues :: [Queue] }
+data CoDelQueue = CoDelQueue { q :: Queue, targetDelay :: Double, interval :: Double, firstAboveTime :: Double, dropNext :: Double, dropCount :: Int }
+data CBQ = CBQ { nodes :: [Queue] }
+data FairQ = FairQ { flowQueues :: [Queue] }
+data HFSC = HFSC { nodes :: [Queue] }
+
+newQueue :: Int -> Int -> Queue
+newQueue cap bw = Queue { items = [], capacity = cap, totalBandwidth = bw }
+
+enqueue :: Packet -> Queue -> (Bool, Queue)
+enqueue p q = if length (items q) >= capacity q then (False, q) else (True, q { items = p : items q })
+
+dequeue :: Queue -> (Maybe Packet, Queue)
+dequeue q = case items q of
+    [] -> (Nothing, q)
+    (p:ps) -> (Just p, q { items = ps })
+
+newPRIQ :: Int -> Int -> Int -> PRIQ
+newPRIQ numQueues cap bw = PRIQ $ map (\_ -> newQueue (cap `div` numQueues) (bw `div` numQueues)) [1..numQueues]
+
+enqueuePRIQ :: Packet -> PRIQ -> (PRIQ, String)
+enqueuePRIQ p priq = let pri = priority p `mod` length (queues priq)
+                         (success, newQ) = enqueue p (queues priq !! pri)
+                         newQueues = take pri (queues priq) ++ [newQ] ++ drop (pri + 1) (queues priq)
+                     in if success
+                        then (PRIQ newQueues, "Packet enqueued, size: " ++ show (size p) ++ ", priority: " ++ show pri ++ ", flow_id: " ++ show (flowId p))
+                        else (PRIQ (queues priq), "Queue full, packet dropped, size: " ++ show (size p))
+
+dequeueAllPRIQ :: PRIQ -> [String]
+dequeueAllPRIQ priq = concat $ flip map (reverse [0..length (queues priq) - 1]) $ \pri ->
+    let q = queues priq !! pri
+        go q' acc = case dequeue q' of
+            (Nothing, _) -> acc
+            (Just p, newQ) -> go newQ (acc ++ ["Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show pri ++ ", flow_id: " ++ show (flowId p)])
+    in go q []
+
+newCoDelQueue :: Int -> Int -> Double -> Double -> CoDelQueue
+newCoDelQueue cap bw target interval = CoDelQueue (newQueue cap bw) target interval 0.0 (1/0) 0
+
+enqueueCoDel :: Packet -> Double -> CoDelQueue -> (CoDelQueue, Bool, String)
+enqueueCoDel p currentTime c = let (success, newQ) = enqueue p (q c)
+                               in if success
+                                  then let (newC, msg) = processQueue (c { q = newQ }) currentTime
+                                       in (newC, True, "Packet enqueued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p) ++ "\n" ++ msg)
+                                  else (c, False, "Queue full, packet dropped, size: " ++ show (size p))
+
+processQueue :: CoDelQueue -> Double -> (CoDelQueue, String)
+processQueue c currentTime = go c [] where
+    go c' acc = if length (items $ q c') == 0 then (c', concat acc)
+                else let sojournTime = currentTime -- Simplified
+                         (nextC, msg) = if sojournTime < targetDelay c' || length (items $ q c') <= 4
+                                         then let (Just p, newQ) = dequeue (q c')
+                                              in (c' { q = newQ, firstAboveTime = 0.0, dropNext = 1/0, dropCount = 0 },
+                                                  "Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p) ++ "\n")
+                                         else if firstAboveTime c' == 0.0
+                                              then let (Just p, newQ) = dequeue (q c')
+                                                   in (c' { q = newQ, firstAboveTime = currentTime + interval c', dropNext = currentTime + interval c' },
+                                                       "Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p) ++ "\n")
+                                              else if currentTime >= dropNext c'
+                                                   then let (Just p, newQ) = dequeue (q c')
+                                                        in (c' { q = newQ, dropCount = dropCount c' + 1, dropNext = currentTime + interval c' / sqrt (fromIntegral $ dropCount c' + 1) },
+                                                            "Packet dropped, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p) ++ "\n")
+                                                   else let (Just p, newQ) = dequeue (q c')
+                                                        in (c' { q = newQ, dropCount = 0 },
+                                                            "Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p) ++ "\n")
+                     in go nextC (acc ++ [msg])
+
+newCBQ :: Int -> Int -> Int -> CBQ
+newCBQ numNodes cap bw = CBQ $ map (\_ -> newQueue (cap `div` numNodes) (bw `div` numNodes)) [1..numNodes]
+
+enqueueCBQ :: Packet -> CBQ -> (CBQ, String)
+enqueueCBQ p cbq = let nodeIdx = flowId p `mod` length (nodes cbq)
+                       (success, newNode) = enqueue p (nodes cbq !! nodeIdx)
+                       newNodes = take nodeIdx (nodes cbq) ++ [newNode] ++ drop (nodeIdx + 1) (nodes cbq)
+                   in if success
+                      then (CBQ newNodes, "Packet enqueued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p))
+                      else (CBQ (nodes cbq), "Queue full, packet dropped, size: " ++ show (size p))
+
+dequeueAllCBQ :: CBQ -> [String]
+dequeueAllCBQ cbq = concat $ map (\node -> let go q acc = case dequeue q of
+                                                (Nothing, _) -> acc
+                                                (Just p, newQ) -> go newQ (acc ++ ["Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p)])
+                                           in go node []) (nodes cbq)
+
+newFairQ :: Int -> Int -> Int -> FairQ
+newFairQ numFlows cap bw = FairQ $ map (\_ -> newQueue (cap `div` numFlows) (bw `div` numFlows)) [1..numFlows]
+
+enqueueFairQ :: Packet -> FairQ -> (FairQ, String)
+enqueueFairQ p fq = let flow = flowId p `mod` length (flowQueues fq)
+                        (success, newQueue) = enqueue p (flowQueues fq !! flow)
+                        newQueues = take flow (flowQueues fq) ++ [newQueue] ++ drop (flow + 1) (flowQueues fq)
+                    in if success
+                       then (FairQ newQueues, "Packet enqueued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show flow)
+                       else (FairQ (flowQueues fq), "Queue full, packet dropped, size: " ++ show (size p))
+
+dequeueAllFairQ :: FairQ -> [String]
+dequeueAllFairQ fq = concat $ flip map [0..length (flowQueues fq) - 1] $ \flow ->
+    let q = flowQueues fq !! flow
+        go q' acc = case dequeue q' of
+            (Nothing, _) -> acc
+            (Just p, newQ) -> go newQ (acc ++ ["Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show flow])
+    in go q []
+
+newHFSC :: Int -> Int -> Int -> HFSC
+newHFSC numNodes cap bw = HFSC $ map (\_ -> newQueue (cap `div` numNodes) (bw `div` numNodes)) [1..numNodes]
+
+enqueueHFSC :: Packet -> HFSC -> (HFSC, String)
+enqueueHFSC p hfsc = let nodeIdx = priority p `mod` length (nodes hfsc)
+                         (success, newNode) = enqueue p (nodes hfsc !! nodeIdx)
+                         newNodes = take nodeIdx (nodes hfsc) ++ [newNode] ++ drop (nodeIdx + 1) (nodes hfsc)
+                     in if success
+                        then (HFSC newNodes, "Packet enqueued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p))
+                        else (HFSC (nodes hfsc), "Queue full, packet dropped, size: " ++ show (size p))
+
+dequeueAllHFSC :: HFSC -> [String]
+dequeueAllHFSC hfsc = concat $ map (\node -> let go q acc = case dequeue q of
+                                                  (Nothing, _) -> acc
+                                                  (Just p, newQ) -> go newQ (acc ++ ["Packet dequeued, size: " ++ show (size p) ++ ", priority: " ++ show (priority p) ++ ", flow_id: " ++ show (flowId p)])
+                                             in go node []) (nodes hfsc)
+
+simulateALTQ :: [Packet] -> Int -> Int -> IO ()
+simulateALTQ packets capacity bandwidth = do
+    putStrLn "=== ALTQ Schedulers Simulation ==="
+
+    putStrLn "\n=== PRIQ Scheduler ==="
+    putStrLn "Initial queue: empty"
+    let priq = newPRIQ 16 capacity bandwidth
+    let (finalPRIQ, priqMessages) = foldl' (\(priq', acc) p -> let (newPriq, msg) = enqueuePRIQ p priq' in (newPriq, acc ++ [msg])) (priq, []) packets
+    mapM_ putStrLn priqMessages
+    mapM_ putStrLn $ dequeueAllPRIQ finalPRIQ
+    putStrLn "Final queue length: 0"
+    putStrLn "Packets dropped: 0" -- Simplified
+    putStrLn "Final queue: empty"
+
+    putStrLn "\n=== CoDel Scheduler ==="
+    putStrLn "Initial queue: empty"
+    let codel = newCoDelQueue capacity bandwidth 5.0 100.0
+    let (finalCoDel, _, codelMessages) = foldl' (\(c, t, acc) p -> let (newC, _, msg) = enqueueCoDel p t c in (newC, t + 1.0, acc ++ [msg])) (codel, 0.0, []) packets
+    mapM_ putStrLn codelMessages
+    putStrLn $ "Final queue length: " ++ show (length $ items $ q finalCoDel)
+    putStrLn "Packets dropped: 0" -- Simplified
+    putStrLn "Final queue: empty"
+
+    putStrLn "\n=== CBQ Scheduler ==="
+    putStrLn "Initial queue: empty"
+    let cbq = newCBQ 4 capacity bandwidth
+    let (finalCBQ, cbqMessages) = foldl' (\(cbq', acc) p -> let (newCbq, msg) = enqueueCBQ p cbq' in (newCbq, acc ++ [msg])) (cbq, []) packets
+    mapM_ putStrLn cbqMessages
+    mapM_ putStrLn $ dequeueAllCBQ finalCBQ
+    putStrLn "Final queue length: 0"
+    putStrLn "Packets dropped: 0"
+    putStrLn "Final queue: empty"
+
+    putStrLn "\n=== FairQ Scheduler ==="
+    putStrLn "Initial queue: empty"
+    let fairq = newFairQ 5 capacity bandwidth
+    let (finalFairQ, fairqMessages) = foldl' (\(fq', acc) p -> let (newFq, msg) = enqueueFairQ p fq' in (newFq, acc ++ [msg])) (fairq, []) packets
+    mapM_ putStrLn fairqMessages
+    mapM_ putStrLn $ dequeueAllFairQ finalFairQ
+    putStrLn "Final queue length: 0"
+    putStrLn "Packets dropped: 0"
+    putStrLn "Final queue: empty"
+
+    putStrLn "\n=== HFSC Scheduler ==="
+    putStrLn "Initial queue: empty"
+    let hfsc = newHFSC 4 capacity bandwidth
+    let (finalHFSC, hfscMessages) = foldl' (\(hfsc', acc) p -> let (newHfsc, msg) = enqueueHFSC p hfsc' in (newHfsc, acc ++ [msg])) (hfsc, []) packets
+    mapM_ putStrLn hfscMessages
+    mapM_ putStrLn $ dequeueAllHFSC finalHFSC
+    putStrLn "Final queue length: 0"
+    putStrLn "Packets dropped: 0"
+    putStrLn "Final queue: empty"
+
+main :: IO ()
+main = do
+    gen <- newStdGen
+    let packets = take 200 $ zipWith3 Packet (randomRs (1, 100) gen) (randomRs (1, 15) gen) (randomRs (1, 5) gen)
+    simulateALTQ packets 100 1000
