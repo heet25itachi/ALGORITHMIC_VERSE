@@ -1,0 +1,228 @@
+### Common Structure ### 
+
+STRUCT Packet
+    size: INTEGER (1 to 100)
+    priority: INTEGER (1 to 15)
+    flow_id: INTEGER (1 to 5)
+
+STRUCT Queue
+    items: ARRAY of Packet
+    capacity: INTEGER
+    total_bandwidth: INTEGER
+
+### PRIQ (PRIORITY QUEUING) ###
+
+FUNCTION SimulatePRIQ(packets, capacity, bandwidth)
+    num_queues = 16
+    queues = ARRAY of Queue[num_queues]
+    FOR i = 0 TO num_queues - 1
+        queues[i] = NEW Queue(capacity / num_queues, bandwidth / num_queues)
+    dropped = 0
+    PRINT "=== PRIQ Scheduler ==="
+    PRINT "Initial queue: empty"
+
+    // Enqueue packets
+    FOR EACH packet IN packets
+        pri = packet.priority MOD num_queues
+        IF queues[pri].items.length < queues[pri].capacity
+            queues[pri].items.append(packet)
+            PRINT "Packet enqueued, size: packet.size, priority: pri, flow_id: packet.flow_id"
+        ELSE
+            PRINT "Queue full, packet dropped, size: packet.size"
+            dropped = dropped + 1
+        END IF
+    END FOR
+
+    // Dequeue packets by priority
+    FOR pri = num_queues - 1 DOWNTO 0
+        WHILE queues[pri].items.length > 0
+            packet = queues[pri].items.removeFirst()
+            PRINT "Packet dequeued, size: packet.size, priority: pri, flow_id: packet.flow_id"
+        END WHILE
+    END FOR
+
+    PRINT "Final queue length: 0"
+    PRINT "Packets dropped: dropped"
+    PRINT "Final queue: empty"
+END FUNCTION
+
+
+### CoDel (Controlled Delay) ###
+
+FUNCTION SimulateCoDel(packets, capacity, bandwidth)
+    queue = NEW Queue(capacity, bandwidth)
+    target_delay = 5.0
+    interval = 100.0
+    first_above_time = 0.0
+    drop_next = INFINITY
+    drop_count = 0
+    dropped = 0
+    current_time = 0.0
+    PRINT "=== CoDel Scheduler ==="
+    PRINT "Initial queue: empty"
+
+    FOR EACH packet IN packets
+        IF queue.items.length < queue.capacity
+            queue.items.append(packet)
+            PRINT "Packet enqueued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+            
+            WHILE queue.items.length > 0
+                sojourn_time = current_time // Simplified
+                IF sojourn_time < target_delay OR queue.items.length <= 4
+                    packet = queue.items.removeFirst()
+                    PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+                    first_above_time = 0.0
+                    drop_next = INFINITY
+                    drop_count = 0
+                ELSE IF first_above_time == 0.0
+                    first_above_time = current_time + interval
+                    drop_next = first_above_time
+                    packet = queue.items.removeFirst()
+                    PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+                ELSE IF current_time >= drop_next
+                    packet = queue.items.removeFirst()
+                    PRINT "Packet dropped, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+                    drop_count = drop_count + 1
+                    drop_next = current_time + interval / SQRT(drop_count)
+                ELSE
+                    packet = queue.items.removeFirst()
+                    PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+                    drop_count = 0
+                END IF
+            END WHILE
+        ELSE
+            PRINT "Queue full, packet dropped, size: packet.size"
+            dropped = dropped + 1
+        END IF
+        current_time = current_time + 1.0
+    END FOR
+
+    PRINT "Final queue length: queue.items.length"
+    PRINT "Packets dropped: dropped"
+    PRINT "Final queue: empty"
+END FUNCTION
+
+### CBQ (Class Based Queuing) ###
+
+FUNCTION SimulateCBQ(packets, capacity, bandwidth)
+    num_nodes = 4
+    nodes = ARRAY of Queue[num_nodes]
+    FOR i = 0 TO num_nodes - 1
+        nodes[i] = NEW Queue(capacity / num_nodes, bandwidth / num_nodes)
+    dropped = 0
+    PRINT "=== CBQ Scheduler ==="
+    PRINT "Initial queue: empty"
+
+    FOR EACH packet IN packets
+        node_idx = packet.flow_id MOD num_nodes
+        IF nodes[node_idx].items.length < nodes[node_idx].capacity
+            nodes[node_idx].items.append(packet)
+            PRINT "Packet enqueued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+        ELSE
+            PRINT "Queue full, packet dropped, size: packet.size"
+            dropped = dropped + 1
+        END IF
+    END FOR
+
+    FOR node_idx = 0 TO num_nodes - 1
+        WHILE nodes[node_idx].items.length > 0
+            packet = nodes[node_idx].items.removeFirst()
+            PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+        END WHILE
+    END FOR
+
+    PRINT "Final queue length: 0"
+    PRINT "Packets dropped: dropped"
+    PRINT "Final queue: empty"
+END FUNCTION
+
+
+### FairQ (FAIR QUEUING) ###
+
+FUNCTION SimulateFairQ(packets, capacity, bandwidth)
+    num_flows = 5
+    flow_queues = ARRAY of Queue[num_flows]
+    FOR i = 0 TO num_flows - 1
+        flow_queues[i] = NEW Queue(capacity / num_flows, bandwidth / num_flows)
+    dropped = 0
+    PRINT "=== FairQ Scheduler ==="
+    PRINT "Initial queue: empty"
+
+    FOR EACH packet IN packets
+        flow = packet.flow_id MOD num_flows
+        IF flow_queues[flow].items.length < flow_queues[flow].capacity
+            flow_queues[flow].items.append(packet)
+            PRINT "Packet enqueued, size: packet.size, priority: packet.priority, flow_id: flow"
+        ELSE
+            PRINT "Queue full, packet dropped, size: packet.size"
+            dropped = dropped + 1
+        END IF
+    END FOR
+
+    FOR flow = 0 TO num_flows - 1
+        WHILE flow_queues[flow].items.length > 0
+            packet = flow_queues[flow].items.removeFirst()
+            PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: flow"
+        END WHILE
+    END FOR
+
+    PRINT "Final queue length: 0"
+    PRINT "Packets dropped: dropped"
+    PRINT "Final queue: empty"
+END FUNCTION
+
+
+### HFSC (HIERARCHICAL FAIR SERVICE CURVE) ###
+
+FUNCTION SimulateHFSC(packets, capacity, bandwidth)
+    num_nodes = 4
+    nodes = ARRAY of Queue[num_nodes]
+    FOR i = 0 TO num_nodes - 1
+        nodes[i] = NEW Queue(capacity / num_nodes, bandwidth / num_nodes)
+    dropped = 0
+    PRINT "=== HFSC Scheduler ==="
+    PRINT "Initial queue: empty"
+
+    FOR EACH packet IN packets
+        node_idx = packet.priority MOD num_nodes
+        IF nodes[node_idx].items.length < nodes[node_idx].capacity
+            nodes[node_idx].items.append(packet)
+            PRINT "Packet enqueued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+        ELSE
+            PRINT "Queue full, packet dropped, size: packet.size"
+            dropped = dropped + 1
+        END IF
+    END FOR
+
+    FOR node_idx = 0 TO num_nodes - 1
+        WHILE nodes[node_idx].items.length > 0
+            packet = nodes[node_idx].items.removeFirst()
+            PRINT "Packet dequeued, size: packet.size, priority: packet.priority, flow_id: packet.flow_id"
+        END WHILE
+    END FOR
+
+    PRINT "Final queue length: 0"
+    PRINT "Packets dropped: dropped"
+    PRINT "Final queue: empty"
+END FUNCTION
+
+
+### Main Simulation ###
+
+FUNCTION SimulateALTQ(packets, capacity, bandwidth)
+    PRINT "=== ALTQ Schedulers Simulation ==="
+    SimulatePRIQ(packets, capacity, bandwidth)
+    SimulateCoDel(packets, capacity, bandwidth)
+    SimulateCBQ(packets, capacity, bandwidth)
+    SimulateFairQ(packets, capacity, bandwidth)
+    SimulateHFSC(packets, capacity, bandwidth)
+END FUNCTION
+
+// Main execution
+packets = ARRAY of 200 Packets
+FOR i = 0 TO 199
+    packets[i].size = RANDOM(1, 100)
+    packets[i].priority = RANDOM(1, 15)
+    packets[i].flow_id = RANDOM(1, 5)
+END FOR
+SimulateALTQ(packets, 100, 1000)
