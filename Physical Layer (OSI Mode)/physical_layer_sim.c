@@ -15,10 +15,9 @@
  *  - BER measurement pre/post FEC, frame acceptance
  *  - WAV file write of tx signal (16-bit PCM)
  *
- * Author: Advanced Computer Networking Tutor (GPT)
+ * Author: ARJUN a.k.a HEET TRIVEDI
  * Date: 2025-11
  *
- * Note: This code is educational — for production you would optimize and test.
  */
 
 #include <stdio.h>
