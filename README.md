@@ -4,6 +4,31 @@
 
 ---
 
+
+<!-- Stars Badge -->
+![GitHub stars](https://img.shields.io/github/stars/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Forks Badge -->
+![GitHub forks](https://img.shields.io/github/forks/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Watchers Badge -->
+![GitHub watchers](https://img.shields.io/github/watchers/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Issues Badge -->
+![GitHub issues](https://img.shields.io/github/issues/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- License Badge -->
+![License](https://img.shields.io/github/license/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Repo Size -->
+![Repo Size](https://img.shields.io/github/repo-size/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Last Commit -->
+![Last Commit](https://img.shields.io/github/last-commit/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
+<!-- Contributors -->
+![Contributors](https://img.shields.io/github/contributors/heet25itachi/ALGORITHMIC_VERSE?style=for-the-badge)
+
 ## 🧠 About the Project
 
 **Algorithmic_Verse** is not just a code repository — it’s a full-scale algorithmic encyclopedia. It blends:
