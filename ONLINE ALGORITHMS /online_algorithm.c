@@ -344,5 +344,71 @@ void run_benchmark(const OnlineAlgorithm *algo_list, int algo_count) {
 
   printf("\n");
   printf(""Competitive Ratio = Algorithm Cost / Best Possible Cost In Hindsight\n);
-  printf("")
+  printf("This is the only number that matters for online algorithms\n");
+  printf("\n");
+  printf("Expected Theoretical ratios.\n");
+  printf(" * LRU = 1.580 Proven by Sleator & Tarjan 1985\n");
+  printf(" * FIFO = 2.000 Proven competitive bound.\n");
+  printf(" * Ski  = 2.000 Hard upper bound\n");
+  printf(" * Secretary = -1.9 Average case performance\n");
+
+
+  // Cleanuo
+  for(int i =`0; i<algo_count; i++) {
+      free(instance[i].state);
+  }
+}
+
+//
+===================================================================================================================================
+// MAIN
+//
+===================================================================================================================================
+
+int main() {
+
+printf("=========================================================================================================\n");
+printf("   ONLINE ALGORITHMS STANDARD BENCHMARK HARNESS    \n");
+
+printf("=========================================================================================================\n\n");
+
+    const OnlineAlgorithm test_suite = {
+        {
+            "Belady Optimum",
+            belady_init,
+            belady_event,
+            belady_score,
+            sizeof(BeladyState)
+        },
+        {
+            "FIFO",
+            fifo_init,
+            fifo_event,
+            fifo_score,
+            sizeof(FIFOState)
+        },
+        {
+            "Ski Rental Doubling",
+            ski_init,
+            ski_event,
+            ski_score,
+            sizeof(SkiRentalState)
+        },
+        {
+            "Secretary 1/e Rule",
+            secretary_init,
+            secretary_event,
+            secretary_score,
+            sizeof(SecretaryState)
+        },
+    };
+
+    int algorithm_count = sizeof(test_suite) / sizeof(OnlineAlgorithm);
+
+    printf("Generating Zipf distributed real world workload...\n");
+    generate_realistic_workload();
+
+    run_benchmark(test_suite, algorithm_count);
+
+    return 0;
 }
