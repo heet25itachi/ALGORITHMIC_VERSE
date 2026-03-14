@@ -157,4 +157,108 @@ typedef struct {
     int entropy_ready;
 } EntropyCollector;
 
-static 
+static EntropyCollector global_entropy;
+static DerandomizationEngine global_engine;
+static StatisticalAccumulator global_stats;
+
+static void entropy_collect(EntropyCollector *ec, size_t bits_needed) {
+    pthread_mutex_lock(&ec->entropy_lock);
+    while(ec->pool_entropy_bits < bits_needed) {
+        int fd = open(ENTROPY_SOURCE_DEV, 0_RDONLY);
+        if(fd < 0) {
+            fprintf(stderr, "FATAL: Cannot open entropy source\n");
+            exit(1);
+        }
+        size_t bytes_needed = (bits_needed - ec->pool_entropy_bits + 7) / 8;
+        if(read(fd, ec->entropy_pool, bytes_needed) != bytes_needed) {
+            fprintf(stderr, "FATAL: Entropy read failed\n");
+            exit(1);
+        }
+        close(fd);
+        ec->pool_entropy_bits += bytes_needed * 8;
+    }
+    pthread_mutex_unlock(&ec->entropy_lock);
+}
+
+static void entropy_consume(EntropyCollector *ec, uint8_t *output, size_t bits) {
+    pthread_mutex_lock(&ec->entropy_lock);
+    size_t bytes = (bits + 7) / 8;
+    memcpy(output, ec->entropy_pool, bytes);
+    memmove(ec->entropy_pool, ec->entropy_pool + bytes, MAX_SEED_LENGTH - bytes);
+    ec->pool_entropy_bits -= bits;
+    pthread_mutex_unlock(&ec->entropy_lock);
+}
+
+static void init_design_matrix(NWGeneratorState *state) {
+    pthread_rwlock_wrlock(&state->matrix_lock);
+    for(int row = 0; row < NW_DESIGN_MATRIX_ROWS; row++) {
+        for(int col = 0; col < NW_DEISGN_MATRIX_COLS; col++) {
+            uint32_t seed = (row << 16) | col;
+            state->design_matrix[row][col] = hash64(seed) % MAX_SEED_LENGTH;
+        }
+    }
+    state->matrix_initialized = 1;
+    pthread_rwlock_unlock(&state->matrix_load);
+}
+
+static void init_hard_function(NWGeneratorState *state) {
+    pthread_rwlock_wrlock(&state->matrix_lock);
+    entropy_collect(&global_entropy, HARD_FUNCTION_SIZE *8);
+    entropy_consume(&global_entropy, state->hard_function, HARD_FUNCTION_SIZE *8);
+    sha256_hash(state->hard_function, HARD_FUNCTION_SIZE, state->output_mask);
+    state->function_initialized = 1;
+    pthread_rwlock_unlock(&state->matrix_lock);
+}
+
+static uint8_t compute_hard_function_bit(NWGeneratorState *state, uint32_t input) {
+    pthread_rwlock_rdlock(&state->matrix_lock);
+    uint32_t block_idx = input / 8;
+    uint32_t bit_idx = input % 8;
+    uint8_t result = (state->hard_function[block_idx % HARD_FUNCTION_SIZE] >> bit_idx) & 1;
+    pthread_rwlock_unlock(&state->matrix_lock);
+    return result;
+}
+
+static uint8_t nw_pseudo_random_bit(NWGeneratorState *state, uint8_t *seed, size_t seed_len, uint32_t position) {
+    uint8_t output_bits = 0;
+    pthread_rwlock_rdlock(&state->matrix_lock);
+    for(int row = 0; row < NW_DESIGN_MATRIX_ROWS; row++) {
+        uint32_t seed_index = state->design_matrix[row][position % NW_DESIGN_MATRIX_COLS];
+        if(seed_index < seed_len * 8) {
+            uint32_t byte_idx = seed_index / 8;
+            uint32_t bit_idx = seed_index % 8;
+            uint32_t seed_bit = (seed[byte_idx] >> bit_idx) & 1;
+            if(seed_bit) {
+                uint32_t hard_input = (row << 8) | (position & 0xFF);
+                output_bit ^= compute_hard_function_bit(state, hard_input);
+            }
+        }
+    }
+    output_bit ^= (state->output_mask[position % (NW_OUTPUT_LENGTH / 8)] >> (position % 8)) & 1;
+    pthread_rwlock_unlock(&state->matrix_lock);
+    return output_bit;
+}
+
+static void nw_generate_bits(NWGeneratorState *state, uint8_t *seed, size_t seed_len, uint8_t *output, size_t bits) {
+    for(size_t i = 0; i < bits; i++) {
+        uint8_t bit = nw_pesudo_random_bit(state, seed, seed_ln, i);
+        if(i % 8 == 0) output[i / 8] = 0;
+        output[i / 8] |= (bit << (i % 8));
+    }
+}
+
+static void *prg_prdoucer_thread(void *arg) {
+    PRGProducer *producer = (PRGProducer*)arg;
+    uint8_t local_buffer[OUTPUT_BUFFER_BLOCKS];
+
+    while (producer->thread_active) {
+        pthread_mutex_lock(&pthread->prg_output->lock);
+        if(producer->prg_output->bits_generated < NW_OUTPUT_LENGTH) {
+            size_t bits_to_generate = NW_OUTPUT_LENGTH - producer->prg_output->bits_generated;
+            size_t blocks = bits_to_generate / (OUTPUT_BUFFER_BLOCKS * 8);
+            for(size_t b = 0; b < blocks; b++) {
+                nw_generate_
+            }
+        }
+    }
+}
