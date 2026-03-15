@@ -257,8 +257,29 @@ static void *prg_prdoucer_thread(void *arg) {
             size_t bits_to_generate = NW_OUTPUT_LENGTH - producer->prg_output->bits_generated;
             size_t blocks = bits_to_generate / (OUTPUT_BUFFER_BLOCKS * 8);
             for(size_t b = 0; b < blocks; b++) {
-                nw_generate_
+                nw_generate_bits(global_engine, nw_state, producer->prg_output->seed, producer->prg_output->seed_len, local_buffer, OUTPUT_BUFFER_BLOCKS * 8);
+
+                pthread_mutex_lock(&producer->circ_buffer->buffer_lock);
+
+                while(producer->circ_buffer->available >= PRG_BUFFER_SIZE - OUTPUT_BUFFER_BLOCKS) {
+                    pthread_cond_wait(&producer->circ_buffer->data_available, &producer->circ_buffer->buffer_lock);
+                }
+                memcpy(&producer->circ_buffer->buffer[producer->circ_buffer->tail], local_buffer, OUTPUT_BUFFER_BLOCKS);
+                producer->circ_buffer->available += OUTPUT_BUFFER_BLOCKS;
+
+                pthread_mutex_unlock(&producer->circ_buffer->buffer_lock);
+                pthread_cond_signal(&producer->circ_buffer->data_available);
+
+                producer->bytes_produced += OUTPUT_BUFFER_BLOCKS;
             }
+            producer->prg_output->bits_generated += blocks * OUTPUT_BUFFER_BLOCKS * 8;
         }
+        pthread_mutex_unlock(&producer->prg_output->lock);
+        usleep(100);
     }
+    return NULL;
+}
+
+static void prg_producer_init(PRGProducer *producer, PRGBuffer *buffer, CircularBuffer *circ) {
+    
 }
