@@ -181,10 +181,93 @@ void a_star(int grid[MAX_GRID][MAX_GRID], int rows, int cols, Point start, Point
 
             // If node hasn't been discovered, or we found a better path to it
             if(all_nodes[nx][ny] == NULL || tentative_g < all_nodes[nx][ny]->g_score) {
+                if(all_nodes[nx][ny] == NULL) {
+                    Node* neighbor = (Node*)malloc(sizeof(Node));
+                    neighbor->pos.x = nx;
+                    neighbor->pos.y = ny;
+                    neighbor->parent = current;
+                    neighbor->g_score = tentative_g;
+                    neighbor->h_score = calculate_heuristic(neighbor->pos, goal);
+                    neighbor->f_score = neighbor->g_score + neighbor->h_score;
 
-              
+                    all_nodes[nx][ny] = neighbor;
+                    push_heap(open_set, neighbor);
+                } else {
+                    // Update existing node
+                    all_nodes[nx][ny]->g_score = tentative_g;
+                    all_nodes[nx][ny]->f_score = tentative_g + all_nodes[nx][ny]->h_score;
+                    all_nodes[nx][ny]->parent = current;
+                    // Note: In a strict heap, we would need to "Heapify Up" here
+                    // because the f_score decreased.
+                    for(int k = 0; k < open_set->size; k++) {
+                        if(open_set->nodes[k] == all_nodes[nx][ny]) {
+                            heapify_up(open_set, k);
+                            break;
+                        }
+                    }
+                }
             }
         }
+    }    
+
+    if(found_goal) {
+        print_path(final_mode);
+
+        // Visualize the path on the grid
+        char visualization[MAX_GRID][MAX_GRID];
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                if(grid[i][j] == 1) visualization[i][j] = '#';
+                else visualization[i][j] = '.';
+            }
+        }
+        Node* temp = final_mode;
+        while(temp) {
+            visualization[temp->pos.x][temp->pos.y] = '*';
+            temp = temp->parent;
+        }
+
+        printf("\nGrid Visualization (* = Path, # = Obstacle):\n");
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                printf("%c", visualization[i][j]);
+            }
+            printf("\n");
+        }
+    } else {
+        printf("No path exists between start and goal.\n");
     }
-    
+
+    // Cleanup Memory 
+    for(int i = 0; i < rows; i ++) {
+        for(int j = 0; j < cols; j++) {
+            if(all_nodes[i][j] != NULL) free(all_nodes[i][j]);
+        }
+    }
+    free(open_set->nodes);
+    free(open_set);
+}
+
+
+// ---- MAIN FUNCTION ----
+
+int main() {
+    int rows = 15;
+    int cols = 15;
+    int grid[MAX_GRID][MAX_GRID] = {0};
+
+    // Adding some obstacles
+    for(int i = 0; i < 10; i++) grid[7][i] = 1;  // Horizontal wall
+    for(int i = 5; i < 15; i++) grid[i][10] = 1; // Vertical wall
+
+    Point start = {0, 0};
+    Point goal = {14, 14};
+
+    printf("A* Search Algorithm (C Implementation)\n");
+    printf("Start: (%d, %d) | Goal: (%d, %d)\n", start.x, start.y, goal.x, goal.y);
+    printf("----------------------------------------------------------------\n");
+
+    a_star(grid, rows, cols, start, goal);
+
+    return 0;
 }
